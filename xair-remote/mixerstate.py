@@ -5,11 +5,11 @@ This module holds the mixer state of the X-Air device
 
 class Channel:
     fader = 0.0
-    mute = False
-    osc_base_path = ''
+    on = 1
+    osc_base_addr = ''
     
-    def __init__(self, path):
-        self.osc_base_path = path
+    def __init__(self, addr):
+        self.osc_base_addr = addr
         
 
 class MixerState:
@@ -19,8 +19,8 @@ class MixerState:
     # Each layer has 8 encoders and 8 buttons
     layers = [
         [
-            Channel('/ch/01/mix/'),
-            Channel('/ch/02/mix/'),
+            Channel('/ch/01/mix'),
+            Channel('/ch/02/mix'),
             Channel('/ch/03/mix'),
             Channel('/ch/04/mix'),
             Channel('/ch/05/mix'),
@@ -85,40 +85,39 @@ class MixerState:
     def __init__(self):
         pass
     
-    def received_midi(self, channel, fader = None, mute = None):
+    def received_midi(self, channel, fader = None, on = None):
         if channel < 9 and self.layers[self.active_layer][channel] != None:
             if fader != None:
                 self.layers[self.active_layer][channel].fader = fader / 127.0
                 if self.osc_sender != None:
-                    self.osc_sender(path = self.layers[self.active_layer][channel].osc_base_path, 
+                    self.osc_sender(base_addr = self.layers[self.active_layer][channel].osc_base_addr, 
                         fader = self.layers[self.active_layer][channel].fader)
-            elif mute != None:
-                self.layers[self.active_layer][channel].mute = mute
+            elif on != None:
+                self.layers[self.active_layer][channel].on = on
                 if self.osc_sender != None:
-                    self.osc_sender(path = self.layers[self.active_layer][channel].osc_base_path, 
-                        mute = self.layers[self.active_layer][channel].mute)
+                    self.osc_sender(base_addr = self.layers[self.active_layer][channel].osc_base_addr, 
+                        on = self.layers[self.active_layer][channel].on)
             return True
         elif channel == 9:
             if fader != None:
                 self.lr.fader = fader / 127.0
                 if self.osc_sender != None:
-                    self.osc_sender(path = self.lr.osc_base_path, 
-                        fader = self.lr.fader)
+                    self.osc_sender(base_addr = self.lr.osc_base_addr, fader = self.lr.fader)
         else:
             return False
     
-    def received_osc(self, path, value):
+    def received_osc(self, addr, value):
         for i in range(0, 5):
             for j in range(0, 8):
-                if self.layers[i][j] != None and path.startswith(self.layers[i][j]):
-                    if path.endswith('/fader'):
+                if self.layers[i][j] != None and addr.startswith(self.layers[i][j].osc_base_addr):
+                    if addr.endswith('/fader'):
                         self.layers[i][j].fader = value
                         if self.midi_sender != None and i == self.active_layer:
                             self.midi_sender(channel = j, fader = int(self.layers[i][j].fader * 127))
-                    elif path.endswith('/on'):
-                        self.layers[i][j].mute = value
+                    elif addr.endswith('/on'):
+                        self.layers[i][j].on = value
                         if self.midi_sender != None and i == self.active_layer:
-                            self.midi_sender(channel = j, mute = self.layers[i][j].mute)
+                            self.midi_sender(channel = j, on = self.layers[i][j].on)
                     break
             else:
                 continue

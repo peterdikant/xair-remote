@@ -14,3 +14,7 @@ print_ports('Output Ports:', mido.get_output_names())
 if __name__ == '__main__':
     state = MixerState()
     midi = MidiSurface('X-TOUCH MINI', state)
+    xair = XAirClient('192.168.178.37', state)
+    
+    # now start OSC server and run forever
+    xair.run_server()
