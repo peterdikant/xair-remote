@@ -1,12 +1,11 @@
-import mido
-import mixerstate
+from mixerstate import MixerState
+from mido import Message, open_input, open_output
 from threading import Thread
 
 class MidiSurface:
     """
     Handles communication with the MIDI surface
     """
-    active_layer = -1
     midi_channel = 10
     
     midi_cmds_layer = [19, 20, 21, 22, 23]
@@ -14,9 +13,11 @@ class MidiSurface:
     midi_cmds_fader = [1, 2, 3, 4, 5, 6, 7, 8]
     midi_cmds_lr = 9
     
-    def __init__(self, devicename):
-        self.inport = mido.open_input(devicename)
-        self.outport = mido.open_output(devicename)
+    def __init__(self, devicename, state):
+        self.state = state
+        self.state.midi_sender = self.update_callback
+        self.inport = open_input(devicename)
+        self.outport = open_output(devicename)
         self.activate_layer(0)
         Thread(target = self.midi_listener())
         
@@ -25,19 +26,26 @@ class MidiSurface:
             for msg in self.inport:
                 if msg.type == 'control_change':
                     if msg.control in self.midi_cmds_fader:
-                        self.set_fader(self.midi_cmds_fader.index(msg.control), msg.value)
+                        self.state.received_midi(channel = self.midi_cmds_fader.index(msg.control), fader = msg.value)
                     elif msg.control == self.midi_cmds_lr:
-                        mixerstate.lr_fader = msg.value / 127.0
+                        self.state.received_midi(channel = 9, fader = msg.value)
                 elif msg.type == 'note_on':
                     if msg.note in self.midi_cmds_layer:
                         self.activate_layer(self.midi_cmds_layer.index(msg.note), False)
                     elif msg.note in self.midi_cmds_mute:
-                        self.set_on(self.midi_cmds_mute.index(msg.note), True)
+                        if self.state.received_midi(channel = self.midi_cmds_mute.index(msg.note), mute = True) == False:
+                            # unassigned buttons should stay off
+                            self.outport.send(Message('note_off', channel = self.midi_channel, 
+                                                      note = msg.note, velocity = 0))
+                    else:
+                        # unassigned buttons should stay off
+                        self.outport.send(Message('note_off', channel = self.midi_channel,
+                                                  note = msg.note, velocity = 0))
                 elif msg.type == 'note_off':
                     if msg.note in self.midi_cmds_layer:
                         self.activate_layer(self.midi_cmds_layer.index(msg.note))
                     elif msg.note in self.midi_cmds_mute:
-                        self.set_on(self.midi_cmds_mute.index(msg.note), False)
+                        self.state.received_midi(channel = self.midi_cmds_mute.index(msg.note), mute = False)
                 else:
                     print 'Received unknown {}'.format(msg)
         except KeyboardInterrupt:
@@ -47,79 +55,44 @@ class MidiSurface:
         print "Switching to layer %d" % layer
         for i in range(0, 5):
             if i != layer:
-                self.outport.send(mido.Message('note_off', channel = self.midi_channel, note = 19 + i, velocity = 0))
+                self.outport.send(Message('note_off', channel = self.midi_channel, note = self.midi_cmds_layer[i], velocity = 0))
         if send_active == True:
-            self.outport.send(mido.Message('note_on', channel = self.midi_channel, note = 19 + layer, velocity = 127))
-        if self.active_layer != layer:
-            self.update_layer(layer)
-            self.active_layer = layer
-    
-    def set_fader(self, fader, value):
-        if self.active_layer == 0:
-            mixerstate.channel_fader[fader] = value / 127.0
-        elif self.active_layer == 1:
-            mixerstate.channel_fader[fader + 8] = value / 127.0
-        elif self.active_layer == 2:
-            if fader == 0:
-                mixerstate.aux_fader = value / 127.0
-            elif fader > 3:
-                mixerstate.dca_fader[fader - 4] = value / 127.0
-        elif self.active_layer == 3:
-            if fader < 4:
-                mixerstate.fxsend_fader[fader] = value / 127.0
-            else:
-                mixerstate.fxret_fader[fader - 4] = value / 127.0
-        else:
-            if fader < 6:
-                mixerstate.bus_fader[fader] = value / 127.0
-    
-    def set_on(self, button, value):
-        if self.active_layer == 0:
-            mixerstate.channel_on[button] = value
-        elif self.active_layer == 1:
-            mixerstate.channel_on[button + 8] = value
-        elif self.active_layer == 2:
-            if button == 0:
-                mixerstate.aux_on = value
-            elif button > 3:
-                mixerstate.dca_on[button - 4] = value
-        elif self.active_layer == 3:
-            if button < 4:
-                mixerstate.fxsend_on[button] = value
-            else:
-                mixerstate.fxret_on[button - 4] = value
-        else:
-            if button < 6:
-                mixerstate.bus_on[button] = value
-    
-    def update_layer(self, layer):
-        if layer == 0:
-            self.update_faders(mixerstate.channel_fader[0:8])
-            self.update_mutes(mixerstate.channel_on[0:8])
-        elif layer == 1:
-            self.update_faders(mixerstate.channel_fader[8:16])
-            self.update_mutes(mixerstate.channel_on[8:16])
-        elif layer == 2:
-            self.update_faders([mixerstate.aux_fader, 0.0, 0.0, 0.0] + mixerstate.dca_fader[0:4])
-            self.update_mutes([mixerstate.aux_on, False, False, False] + mixerstate.dca_on[0:4])
-        elif layer == 3:
-            self.update_faders(mixerstate.fxsend_fader[0:4] + mixerstate.fxret_fader[0:4])
-            self.update_mutes(mixerstate.fxsend_on[0:4] + mixerstate.fxret_on[0:4])
-        else:
-            self.update_faders(mixerstate.bus_fader[0:6] + [0.0, 0.0])
-            self.update_mutes(mixerstate.bus_on[0:6] + [False, False])
-    
-    def update_faders(self, faders):
-        for i in range(0, 8):
-            self.outport.send(mido.Message('control_change', channel = self.midi_channel, 
-                                           control = self.midi_cmds_fader[i], value = int(faders[i] * 127)))
+            self.outport.send(Message('note_on', channel = self.midi_channel, note = self.midi_cmds_layer[layer], velocity = 127))
+        if self.state.active_layer != layer:
+            self.refresh_channels(layer)
+            self.state.active_layer = layer
             
-    def update_mutes(self, buttons):
+        
+    def refresh_channels(self, layer):
         for i in range(0, 8):
-            if buttons[i] == True:
-                self.outport.send(mido.Message('note_on', channel = self.midi_channel, 
-                                               note = self.midi_cmds_mute[i], velocity = 127))
+            if self.state.layers[layer][i] != None:
+                self.outport.send(Message('control_change', channel = self.midi_channel,
+                                          control = self.midi_cmds_fader[i], 
+                                          value = int(self.state.layers[layer][i].fader * 127)))
+                if self.state.layers[layer][i].mute == True:
+                    self.outport.send(Message('note_on', channel = self.midi_channel, 
+                                              note = self.midi_cmds_mute[i], velocity = 127))
+                else:
+                    self.outport.send(Message('note_off', channel = self.midi_channel, 
+                                                   note = self.midi_cmds_mute[i], velocity = 0))
             else:
-                self.outport.send(mido.Message('note_off', channel = self.midi_channel, 
+                # unassigned channel, disbale encoder and button
+                self.outport.send(Message('control_change', channel = self.midi_channel,
+                                          control = self.midi_cmds_fader[i], 
+                                          value = 0))
+                self.outport.send(Message('note_off', channel = self.midi_channel, 
                                                note = self.midi_cmds_mute[i], velocity = 0))
-                
+                                              
+    def update_callback(self, channel, fader = None, mute = None):
+        if fader != None:
+            self.outport.send(Message('control_change', channel = self.midi_channel,
+                                      control = self.midi_cmds_fader[channel], 
+                                      value = fader))
+        if mute != None:
+            if mute == True:
+                self.outport.send(Message('note_on', channel = self.midi_channel, 
+                                          note = self.midi_cmds_mute[channel], velocity = 127))
+            else:
+                self.outport.send(Message('note_off', channel = self.midi_channel, 
+                                          note = self.midi_cmds_mute[channel], velocity = 0))
+                                          
