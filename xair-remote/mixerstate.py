@@ -1,3 +1,4 @@
+import time
 
 """
 This module holds the mixer state of the X-Air device
@@ -131,5 +132,7 @@ class MixerState:
         for i in range(0, 5):
             for j in range(0, 8):
                 if self.layers[i][j] != None:
-                    self.osc_sender(base_addr = self.layers[i][j].base_addr)
+                    self.osc_sender(base_addr = self.layers[i][j].osc_base_addr)
+                    # mixer might drop packets withou sleep
+                    time.sleep(0.01)
         print 'Finished sync!'
