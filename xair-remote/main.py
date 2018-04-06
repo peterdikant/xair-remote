@@ -16,5 +16,7 @@ if __name__ == '__main__':
     midi = MidiSurface('X-TOUCH MINI', state)
     xair = XAirClient('192.168.178.37', state)
     
-    # now start OSC server and run forever
-    xair.run_server()
+    state.read_initial_state()
+    
+    # now refresh /xremote command while running
+    xair.refresh_connection()

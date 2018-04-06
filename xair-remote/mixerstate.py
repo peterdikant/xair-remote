@@ -122,3 +122,14 @@ class MixerState:
             else:
                 continue
             break
+    
+    def read_initial_state(self):
+        if self.osc_sender == None:
+            return
+            
+        print 'Starting initial mixer sync...'
+        for i in range(0, 5):
+            for j in range(0, 8):
+                if self.layers[i][j] != None:
+                    self.osc_sender(base_addr = self.layers[i][j].base_addr)
+        print 'Finished sync!'

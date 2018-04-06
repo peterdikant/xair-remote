@@ -17,7 +17,7 @@ class XAirClient:
         self.server.addMsgHandler("default", self.msg_handler)
         self.client = OSCClient(server = self.server)
         self.client.connect((address, 10024))
-        thread.start_new_thread(self.refresh_connection, ())
+        thread.start_new_thread(self.run_server, ())
         
     def run_server(self):
         try:
@@ -66,3 +66,7 @@ class XAirClient:
             self.send(base_addr + '/fader', fader)
         if on != None:
             self.send(base_addr + '/on', on)
+        if fader == None and on == None:
+            # Send parameter request
+            self.send(base_addr + '/fader')
+            self.send(base_addr + '/on')
