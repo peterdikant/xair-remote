@@ -6,7 +6,7 @@ Use a Behringer X-Touch Mini MIDI controller to remote control a Behringer X-Air
 
 Make sure that you are running Python 2.7. Now install the module dependencies via:
 
-	sudo pip install -r requirements.txt
+	$ sudo pip install -r requirements.txt
 
 ## Running
 
@@ -41,7 +41,7 @@ The following image is a schematic of all available controls on the X-Touch Mini
 
 ![X-Touch Mini controls](img/xtm-layout.png)
 
-You need to configure the device to have latching buttons. Apart from that you can use the encoder mode you prefer (my favorite is "fan"). My current X-Touch Mini configuration is attached in the file `xair-config.bin`.
+You need to configure the device to have **toggle** buttons. Apart from that you can use the encoder mode you prefer (my favorite is **fan**). Make sure you don't change the default controller and note numbers. My current X-Touch Mini configuration is attached in the file [xtouch-config.bin](xtouch-config.bin).
 
 Currently only layer A is used. So make sure you have the button `LA` selected. The main volume is always mapped to the Fader `F1`. The buttons `B12` to `B16` are used to switch the different layers. Buttons `B09` to `B11` are currently unassigned.
 
@@ -58,3 +58,7 @@ Layer | Encoders (Volume) & Buttons (Mute)
 The Push function of encoders `E1` to `E4` can be used to toggle mute groups 1 to 4 in all layers.
 
 Press `CTRL + C` to exit.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details

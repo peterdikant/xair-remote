@@ -19,6 +19,7 @@ class MidiController:
     midi_cmds_layer = [19, 20, 21, 22, 23]
     midi_cmds_on = [8, 9, 10, 11, 12, 13, 14, 15]
     midi_cmds_fader = [1, 2, 3, 4, 5, 6, 7, 8]
+    midi_cmds_mgrp = [0, 1, 2, 3]
     midi_cmds_lr = 9
     
     def __init__(self, devicename, state):
@@ -52,6 +53,8 @@ class MidiController:
                             # unassigned buttons should stay off
                             self.outport.send(Message('note_off', channel = self.midi_channel, 
                                                       note = msg.note, velocity = 0))
+                    elif msg.note in self.midi_cmds_mgrp:
+                        self.state.received_midi(mute_group = self.midi_cmds_mgrp.index(msg.note), on = 1)
                     else:
                         # unassigned buttons should stay off
                         self.outport.send(Message('note_off', channel = self.midi_channel,
@@ -61,6 +64,8 @@ class MidiController:
                         self.activate_layer(self.midi_cmds_layer.index(msg.note))
                     elif msg.note in self.midi_cmds_on:
                         self.state.received_midi(channel = self.midi_cmds_on.index(msg.note), on = 1)
+                    elif msg.note in self.midi_cmds_mgrp:
+                        self.state.received_midi(mute_group = self.midi_cmds_mgrp.index(msg.note), on = 0)
                 else:
                     print 'Received unknown {}'.format(msg)
         except KeyboardInterrupt:
@@ -99,17 +104,31 @@ class MidiController:
                                           value = 0))
                 self.outport.send(Message('note_off', channel = self.midi_channel, 
                                                note = self.midi_cmds_on[i], velocity = 0))
-                                              
-    def update_callback(self, channel, fader = None, on = None):
-        if fader != None:
-            self.outport.send(Message('control_change', channel = self.midi_channel,
-                                      control = self.midi_cmds_fader[channel], 
-                                      value = fader))
-        if on != None:
-            if on == 0:
-                self.outport.send(Message('note_on', channel = self.midi_channel, 
-                                          note = self.midi_cmds_on[channel], velocity = 127))
+        for i in range(0, 4):
+            if self.state.mute_groups[i].on == 0:
+                self.outport.send(Message('note_off', channel = self.midi_channel,
+                                          note = self.midi_cmds_mgrp[i], velocity = 0))
             else:
-                self.outport.send(Message('note_off', channel = self.midi_channel, 
-                                          note = self.midi_cmds_on[channel], velocity = 0))
-                                          
+                self.outport.send(Message('note_on', channel = self.midi_channel,
+                                          note = self.midi_cmds_mgrp[i], velocity = 127))
+                                      
+    def update_callback(self, channel = None, mute_group = None, fader = None, on = None):
+        if channel != None:
+            if fader != None:
+                self.outport.send(Message('control_change', channel = self.midi_channel,
+                                          control = self.midi_cmds_fader[channel], 
+                                          value = fader))
+            if on != None:
+                if on == 0:
+                    self.outport.send(Message('note_on', channel = self.midi_channel, 
+                                              note = self.midi_cmds_on[channel], velocity = 127))
+                else:
+                    self.outport.send(Message('note_off', channel = self.midi_channel, 
+                                              note = self.midi_cmds_on[channel], velocity = 0))
+        elif mute_group != None:
+            if on == 0:
+                self.outport.send(Message('note_off', channel = self.midi_channel,
+                                          note = self.midi_cmds_mgrp[mute_group], velocity = 0))
+            else:
+                self.outport.send(Message('note_on', channel = self.midi_channel,
+                                          note = self.midi_cmds_mgrp[mute_group], velocity = 127))

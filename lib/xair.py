@@ -49,7 +49,7 @@ class XAirClient:
             self.last_cmd_addr = ''
         else:
             #print 'OSCReceived("%s", %s, %s)' % (addr, tags, data)
-            if addr.endswith('/fader') or addr.endswith('/on'):
+            if addr.endswith('/fader') or addr.endswith('/on') or addr.startswith('/config/mute'):
                 self.state.received_osc(addr, data[0])
             elif addr == '/xinfo':
                 self.info_response = data[:]
@@ -85,8 +85,14 @@ class XAirClient:
         if fader != None:
             self.send(base_addr + '/fader', fader)
         if on != None:
-            self.send(base_addr + '/on', on)
+            if base_addr.startswith('/config'):
+                self.send(base_addr, on)
+            else:
+                self.send(base_addr + '/on', on)
         if fader == None and on == None:
             # Send parameter request
-            self.send(base_addr + '/fader')
-            self.send(base_addr + '/on')
+            if base_addr.startswith('/config'):
+                self.send(base_addr)
+            else:
+                self.send(base_addr + '/fader')
+                self.send(base_addr + '/on')

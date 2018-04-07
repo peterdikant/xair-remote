@@ -89,28 +89,41 @@ class MixerState:
     midi_sender = None
     osc_sender = None
     
-    def received_midi(self, channel, fader = None, on = None):
-        if channel < 9 and self.layers[self.active_layer][channel] != None:
-            if fader != None:
-                self.layers[self.active_layer][channel].fader = fader / 127.0
-                if self.osc_sender != None:
-                    self.osc_sender(base_addr = self.layers[self.active_layer][channel].osc_base_addr, 
-                        fader = self.layers[self.active_layer][channel].fader)
-            elif on != None:
-                self.layers[self.active_layer][channel].on = on
-                if self.osc_sender != None:
-                    self.osc_sender(base_addr = self.layers[self.active_layer][channel].osc_base_addr, 
-                        on = self.layers[self.active_layer][channel].on)
-            return True
-        elif channel == 9:
-            if fader != None:
-                self.lr.fader = fader / 127.0
-                if self.osc_sender != None:
-                    self.osc_sender(base_addr = self.lr.osc_base_addr, fader = self.lr.fader)
-        else:
-            return False
+    def received_midi(self, channel = None, mute_group = None, fader = None, on = None):
+        if channel != None:
+            if channel < 9 and self.layers[self.active_layer][channel] != None:
+                if fader != None:
+                    self.layers[self.active_layer][channel].fader = fader / 127.0
+                    if self.osc_sender != None:
+                        self.osc_sender(base_addr = self.layers[self.active_layer][channel].osc_base_addr, 
+                            fader = self.layers[self.active_layer][channel].fader)
+                elif on != None:
+                    self.layers[self.active_layer][channel].on = on
+                    if self.osc_sender != None:
+                        self.osc_sender(base_addr = self.layers[self.active_layer][channel].osc_base_addr, 
+                            on = self.layers[self.active_layer][channel].on)
+                return True
+            elif channel == 9:
+                if fader != None:
+                    self.lr.fader = fader / 127.0
+                    if self.osc_sender != None:
+                        self.osc_sender(base_addr = self.lr.osc_base_addr, fader = self.lr.fader)
+                return True
+        elif mute_group != None:
+            self.mute_groups[mute_group].on = on
+            if self.osc_sender != None:
+                self.osc_sender(base_addr = self.mute_groups[mute_group].osc_base_addr, on = self.mute_groups[mute_group].on)
+        return False
     
     def received_osc(self, addr, value):
+        if addr.startswith('/config/mute'):
+            group = int(addr[-1:]) - 1
+            self.mute_groups[group].on = value
+            #print "Received mute group %d value %d" % (group, value)
+            if self.midi_sender != None:
+                self.midi_sender(mute_group = group, on = self.mute_groups[group].on)
+            return
+            
         for i in range(0, 5):
             for j in range(0, 8):
                 if self.layers[i][j] != None and addr.startswith(self.layers[i][j].osc_base_addr):
@@ -137,4 +150,8 @@ class MixerState:
                     self.osc_sender(base_addr = self.layers[i][j].osc_base_addr)
                     # mixer might drop packets withou sleep
                     time.sleep(0.01)
+                    
+        for i in range(0, 4):
+            self.osc_sender(base_addr = self.mute_groups[i].osc_base_addr)
+            time.sleep(0.01)
                     

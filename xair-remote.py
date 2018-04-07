@@ -5,9 +5,10 @@ from lib.xair import XAirClient
 from lib.mixerstate import MixerState
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Remote controll X-Air mixers with a midi controller')
-    parser.add_argument('midi_port', help='port name of your midi controller (quote if name hase whitespaces)', nargs='?')
-    parser.add_argument('xair_address', help='ip address of your X-Air mixer', nargs='?')
+    parser = argparse.ArgumentParser(description = 'Remote controll X-Air mixers with a midi controller')
+    parser.add_argument('midi_port', help = 'port name of your midi controller (quote if name hase whitespaces)', 
+                        nargs = '?')
+    parser.add_argument('xair_address', help = 'ip address of your X-Air mixer', nargs = '?')
     parser.add_argument('-l', '--list', help = 'list connected midi ports', action = 'store_true')
     args = parser.parse_args()
     
