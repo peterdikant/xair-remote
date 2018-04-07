@@ -5,16 +5,22 @@ This module holds the mixer state of the X-Air device
 """
 
 class Channel:
-    fader = 0.0
-    on = 1
-    osc_base_addr = ''
-    
+    """ 
+    Represents a single channel strip 
+    """
     def __init__(self, addr):
+        self.fader = 0.0
+        self.on = 1
         self.osc_base_addr = addr
         
 
 class MixerState:
-    """docstring for Mixer"""
+    """
+    This stores the mixer state in the application. It also keeps
+    track of the current selected layer on the midi controller to
+    decide whether state changes from the X-Air device need to be
+    sent to the midi controller.
+    """
     
     active_layer = -1
     # Each layer has 8 encoders and 8 buttons
@@ -82,9 +88,6 @@ class MixerState:
     
     midi_sender = None
     osc_sender = None
-    
-    def __init__(self):
-        pass
     
     def received_midi(self, channel, fader = None, on = None):
         if channel < 9 and self.layers[self.active_layer][channel] != None:

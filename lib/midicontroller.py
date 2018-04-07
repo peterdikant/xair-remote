@@ -1,8 +1,16 @@
 import thread
 from mixerstate import MixerState
-from mido import Message, open_input, open_output
+from mido import Message, open_input, open_output, get_input_names
 
-class MidiSurface:
+def print_ports():
+    """
+    Print out the names of all connected midi controllers
+    """
+    print 'Connected MIDI Ports:'
+    for name in get_input_names():
+        print '    %s' % name
+
+class MidiController:
     """
     Handles communication with the MIDI surface
     """
