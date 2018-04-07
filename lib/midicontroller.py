@@ -24,10 +24,17 @@ class MidiController:
     def __init__(self, devicename, state):
         self.state = state
         self.state.midi_sender = self.update_callback
-        self.inport = open_input(devicename)
-        self.outport = open_output(devicename)
+        
+        try:
+            self.inport = open_input(devicename)
+            self.outport = open_output(devicename)
+        except IOError:
+            print 'Error: MIDI port %s does not exist!' % devicename
+            exit()
+            
         self.activate_layer(0)
         thread.start_new_thread(self.midi_listener, ())
+        print 'Successfully setup MIDI port %s.' % devicename
         
     def midi_listener(self):
         try:
@@ -57,10 +64,12 @@ class MidiController:
                 else:
                     print 'Received unknown {}'.format(msg)
         except KeyboardInterrupt:
+            inport.close()
+            outport.close()
             exit()
             
     def activate_layer(self, layer, send_active = True):
-        print "Switching to layer %d" % layer
+        #print "Switching to layer %d" % layer
         for i in range(0, 5):
             if i != layer:
                 self.outport.send(Message('note_off', channel = self.midi_channel, note = self.midi_cmds_layer[i], velocity = 0))

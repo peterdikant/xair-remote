@@ -131,11 +131,10 @@ class MixerState:
         if self.osc_sender == None:
             return
             
-        print 'Starting initial mixer sync...'
         for i in range(0, 5):
             for j in range(0, 8):
                 if self.layers[i][j] != None:
                     self.osc_sender(base_addr = self.layers[i][j].osc_base_addr)
                     # mixer might drop packets withou sleep
                     time.sleep(0.01)
-        print 'Finished sync!'
+                    
