@@ -157,6 +157,6 @@ class MixerState:
             time.sleep(0.01)
         
         # get all fx types
-        for i in range(1, 5):
-            self.osc_sender(base_addr = '/fx/%d/type' % i)
-            time.sleep(0.01)
+        #for i in range(1, 5):
+        #    self.osc_sender(base_addr = '/fx/%d/type' % i)
+        #    time.sleep(0.01)
