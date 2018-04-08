@@ -22,6 +22,8 @@ class MixerState:
     sent to the midi controller.
     """
     
+    _DLY_TEMPO_INDEX = { 'D/RV': 1, 'D/CR': 1, 'D/FL': 1, 'MODD': 1, 'DLY': 2, '3TAP': 1, '4TAP': 1 }
+    
     active_layer = -1
     # Each layer has 8 encoders and 8 buttons
     layers = [
@@ -119,7 +121,6 @@ class MixerState:
         if addr.startswith('/config/mute'):
             group = int(addr[-1:]) - 1
             self.mute_groups[group].on = value
-            #print "Received mute group %d value %d" % (group, value)
             if self.midi_sender != None:
                 self.midi_sender(mute_group = group, on = self.mute_groups[group].on)
             return
@@ -143,7 +144,8 @@ class MixerState:
     def read_initial_state(self):
         if self.osc_sender == None:
             return
-            
+        
+        # Refresh state for all faders and mutes
         for i in range(0, 5):
             for j in range(0, 8):
                 if self.layers[i][j] != None:
@@ -151,7 +153,9 @@ class MixerState:
                     # mixer might drop packets withou sleep
                     time.sleep(0.01)
                     
+        # get all mute groups
         for i in range(0, 4):
             self.osc_sender(base_addr = self.mute_groups[i].osc_base_addr)
             time.sleep(0.01)
-                    
+        
+        # 
