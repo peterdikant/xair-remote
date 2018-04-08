@@ -43,7 +43,7 @@ The following image is a schematic of all available controls on the X-Touch Mini
 
 You need to configure the device to have **toggle** buttons. Apart from that you can use the encoder mode you prefer (my favorite is **fan**). Make sure you don't change the default controller and note numbers. My current X-Touch Mini configuration is attached in the file [xtouch-config.bin](xtouch-config.bin).
 
-Currently only layer A is used. So make sure you have the button `LA` selected. The main volume is always mapped to the Fader `F1`. The buttons `B12` to `B16` are used to switch the different layers. Buttons `B09` to `B11` are currently unassigned.
+Currently only layer A is used. So make sure you have the button `LA` selected. The main volume is always mapped to the Fader `F1`. The buttons `B12` to `B16` are used to switch the different layers. Buttons `B10` to `B11` are currently unassigned.
 
 The other buttons and the encoders are used to control different channels depending on the selected layer:
 
@@ -55,9 +55,16 @@ Layer | Encoders (Volume) & Buttons (Mute)
 4     | FX Sends 1 - 4, FX Returns 1 - 4
 5     | Bus 1 - 6, 2 unassigned
 
-The Push function of encoders `E1` to `E4` can be used to toggle mute groups 1 to 4 in all layers.
+The Push function of encoders `E1` to `E3` can be used to toggle mute groups 1 to 3 in all layers. I always use mute group 4 for FX mute, therefore I have placed this mute group on button `B09`. This way I also get a visual feedback on the status of my FX returns.
 
-Press `CTRL + C` to exit.
+To exit press `CTRL + C`.
+
+## TODOs
+
+Following features are currently on my todo list:
+
+- [ ] Tap Tempo button on `B10` with automatic detection of FX slot for delay plugin
+- [ ] Think about possible ways to use layer B. Maybe edit channel details for the first 16 channels. For example: Gain, Low Cut, Gate Threshold, Compressor Threshold, 4x EQ Gain (low priority)
 
 ## License
 

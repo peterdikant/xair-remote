@@ -22,8 +22,6 @@ class MixerState:
     sent to the midi controller.
     """
     
-    _DLY_TEMPO_INDEX = { 'D/RV': 1, 'D/CR': 1, 'D/FL': 1, 'MODD': 1, 'DLY': 2, '3TAP': 1, '4TAP': 1 }
-    
     active_layer = -1
     # Each layer has 8 encoders and 8 buttons
     layers = [
@@ -158,4 +156,7 @@ class MixerState:
             self.osc_sender(base_addr = self.mute_groups[i].osc_base_addr)
             time.sleep(0.01)
         
-        # 
+        # get all fx types
+        for i in range(1, 5):
+            self.osc_sender(base_addr = '/fx/%d/type' % i)
+            time.sleep(0.01)
