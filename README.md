@@ -43,9 +43,20 @@ The following image is a schematic of all available controls on the X-Touch Mini
 
 You need to configure the device to have **toggle** buttons. Apart from that you can use the encoder mode you prefer (my favorite is **fan**). Make sure you don't change the default controller and note numbers. My current X-Touch Mini configuration is attached in the file [xtouch-config.bin](xtouch-config.bin).
 
-Currently only layer A is used. So make sure you have the button `LA` selected. The main volume is always mapped to the Fader `F1`. The buttons `B12` to `B16` are used to switch the different layers. Buttons `B10` to `B11` are currently unassigned.
+Currently only layer A is used. So make sure you have the button `LA` selected. The main volume is always mapped to the Fader `F1`. The lower button row is assigned globally with the following functions:
 
-The other buttons and the encoders are used to control different channels depending on the selected layer:
+Button | Function
+------ | ------------------------------------------------
+B09    | Mute Group 4 (this is always my FX mute group)
+B10    | Tap Tempo (will set tempo for all delay effects)
+B11    | Unassigned
+B12    | Layer 1
+B13    | Layer 2
+B14    | Layer 3
+B15    | Layer 4
+B16    | Layer 5 
+
+The upper row buttons and the top encoders are used to control volume and mute for different channels depending on the selected layer:
 
 Layer | Encoders (Volume) & Buttons (Mute)
 ----- | ----------------------------------
@@ -63,7 +74,7 @@ To exit press `CTRL + C`.
 
 Following features are currently on my todo list:
 
-- [ ] Tap Tempo button on `B10` with automatic detection of FX slot for delay plugin
+- [x] Tap Tempo button on `B10` with automatic detection of FX slot for delay plugin
 - [ ] Think about possible ways to use layer B. Maybe edit channel details for the first 16 channels. For example: Gain, Low Cut, Gate Threshold, Compressor Threshold, 4x EQ Gain (low priority)
 
 ## License

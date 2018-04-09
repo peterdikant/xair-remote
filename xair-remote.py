@@ -22,7 +22,9 @@ if __name__ == '__main__':
         
     state = MixerState()
     midi = MidiController(args.midi_port, state)
+    state.midi_controller = midi
     xair = XAirClient(args.xair_address, state)
+    state.xair_client = xair
     xair.validate_connection()
     
     state.read_initial_state()

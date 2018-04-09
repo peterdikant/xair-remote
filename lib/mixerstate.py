@@ -22,6 +22,11 @@ class MixerState:
     sent to the midi controller.
     """
     
+    # ID numbers for all available delay effects
+    _DELAY_FX_IDS = [10, 11, 12, 21, 24, 25, 26]
+    
+    fx_slots = [0, 0, 0, 0]
+    
     active_layer = -1
     # Each layer has 8 encoders and 8 buttons
     layers = [
@@ -86,81 +91,85 @@ class MixerState:
         Channel('/config/mute/4')
     ]
     
-    midi_sender = None
-    osc_sender = None
+    midi_controller = None
+    xair_client = None
     
     def received_midi(self, channel = None, mute_group = None, fader = None, on = None):
         if channel != None:
             if channel < 9 and self.layers[self.active_layer][channel] != None:
                 if fader != None:
                     self.layers[self.active_layer][channel].fader = fader / 127.0
-                    if self.osc_sender != None:
-                        self.osc_sender(base_addr = self.layers[self.active_layer][channel].osc_base_addr, 
-                            fader = self.layers[self.active_layer][channel].fader)
+                    self.xair_client.send(address = self.layers[self.active_layer][channel].osc_base_addr + '/fader', 
+                            param = self.layers[self.active_layer][channel].fader)
                 elif on != None:
                     self.layers[self.active_layer][channel].on = on
-                    if self.osc_sender != None:
-                        self.osc_sender(base_addr = self.layers[self.active_layer][channel].osc_base_addr, 
-                            on = self.layers[self.active_layer][channel].on)
+                    self.xair_client.send(address = self.layers[self.active_layer][channel].osc_base_addr + '/on', 
+                            param = self.layers[self.active_layer][channel].on)
                 return True
             elif channel == 9:
                 if fader != None:
                     self.lr.fader = fader / 127.0
-                    if self.osc_sender != None:
-                        self.osc_sender(base_addr = self.lr.osc_base_addr, fader = self.lr.fader)
+                    self.xair_client.send(address = self.lr.osc_base_addr + '/fader', param = self.lr.fader)
                 return True
         elif mute_group != None:
             self.mute_groups[mute_group].on = on
-            if self.osc_sender != None:
-                self.osc_sender(base_addr = self.mute_groups[mute_group].osc_base_addr, on = self.mute_groups[mute_group].on)
+            self.xair_client.send(address = self.mute_groups[mute_group].osc_base_addr, 
+                    param = self.mute_groups[mute_group].on)
         return False
     
     def received_osc(self, addr, value):
         if addr.startswith('/config/mute'):
             group = int(addr[-1:]) - 1
             self.mute_groups[group].on = value
-            if self.midi_sender != None:
-                self.midi_sender(mute_group = group, on = self.mute_groups[group].on)
-            return
-            
-        for i in range(0, 5):
-            for j in range(0, 8):
-                if self.layers[i][j] != None and addr.startswith(self.layers[i][j].osc_base_addr):
-                    if addr.endswith('/fader'):
-                        self.layers[i][j].fader = value
-                        if self.midi_sender != None and i == self.active_layer:
-                            self.midi_sender(channel = j, fader = int(self.layers[i][j].fader * 127))
-                    elif addr.endswith('/on'):
-                        self.layers[i][j].on = value
-                        if self.midi_sender != None and i == self.active_layer:
-                            self.midi_sender(channel = j, on = self.layers[i][j].on)
-                    break
-            else:
-                continue
-            break
+            self.midi_controller.send(mute_group = group, on = self.mute_groups[group].on)
+        elif addr.startswith('/fx') and (addr.endswith('/par/01') or addr.endswith('/par/02')):
+            if self.fx_slots[int(addr[4:5]) - 1] in self._DELAY_FX_IDS:
+                self.midi_controller.update_tempo(value * 3)
+        elif addr.startswith('/fx/') and addr.endswith('/type'):
+            self.fx_slots[int(addr[4:5]) - 1] = value
+        else:
+            for i in range(0, 5):
+                for j in range(0, 8):
+                    if self.layers[i][j] != None and addr.startswith(self.layers[i][j].osc_base_addr):
+                        if addr.endswith('/fader'):
+                            self.layers[i][j].fader = value
+                            if i == self.active_layer:
+                                self.midi_controller.send(channel = j, fader = int(self.layers[i][j].fader * 127))
+                        elif addr.endswith('/on'):
+                            self.layers[i][j].on = value
+                            if i == self.active_layer:
+                                self.midi_controller.send(channel = j, on = self.layers[i][j].on)
+                        break
+                else:
+                    continue
+                break
     
     def read_initial_state(self):
-        if self.osc_sender == None:
-            return
-        
         # Refresh state for all faders and mutes
         for i in range(0, 5):
             for j in range(0, 8):
                 if self.layers[i][j] != None:
-                    self.osc_sender(base_addr = self.layers[i][j].osc_base_addr)
-                    # mixer might drop packets withou sleep
+                    self.xair_client.send(address = self.layers[i][j].osc_base_addr + '/fader')
+                    time.sleep(0.01)
+                    self.xair_client.send(address = self.layers[i][j].osc_base_addr + '/on')
                     time.sleep(0.01)
                     
         # get all mute groups
         for i in range(0, 4):
-            self.osc_sender(base_addr = self.mute_groups[i].osc_base_addr)
+            self.xair_client.send(address = self.mute_groups[i].osc_base_addr)
             time.sleep(0.01)
         
         # get all fx types
-        #for i in range(1, 5):
-        #    self.osc_sender(base_addr = '/fx/%d/type' % i)
-        #    time.sleep(0.01)
+        for i in range(1, 5):
+            self.xair_client.send(address = '/fx/%d/type' % i)
+            time.sleep(0.01)
     
     def update_tempo(self, tempo):
-        print "Detected tempo %dms" % int(tempo * 1000)
+        for i in range(0, 4):
+            if self.fx_slots[i] in self._DELAY_FX_IDS:
+                param_id = '01'
+                if self.fx_slots[i] == 10:
+                    # only delay where time is set as parameter 02
+                    param_id = '02'
+                self.xair_client.send(address = '/fx/%d/par/%s' % (i + 1, param_id), param = tempo / 3)
         

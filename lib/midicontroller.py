@@ -66,7 +66,6 @@ class MidiController:
     
     def __init__(self, devicename, state):
         self.state = state
-        self.state.midi_sender = self.update_callback
     
         try:
             self.inport = open_input(devicename)
@@ -159,7 +158,7 @@ class MidiController:
                 self.outport.send(Message('note_on', channel = self.midi_channel,
                                           note = self.midi_cmds_mgrp[i], velocity = 127))
                                       
-    def update_callback(self, channel = None, mute_group = None, fader = None, on = None):
+    def send(self, channel = None, mute_group = None, fader = None, on = None):
         if channel != None:
             if fader != None:
                 self.outport.send(Message('control_change', channel = self.midi_channel,

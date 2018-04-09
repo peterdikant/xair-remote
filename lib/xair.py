@@ -18,7 +18,6 @@ class XAirClient:
     
     def __init__(self, address, state):
         self.state = state
-        self.state.osc_sender = self.update_callback
         self.server = OSCServer(("", 0))
         self.server.addMsgHandler("default", self.msg_handler)
         self.client = OSCClient(server = self.server)
@@ -49,10 +48,8 @@ class XAirClient:
             self.last_cmd_addr = ''
         else:
             #print 'OSCReceived("%s", %s, %s)' % (addr, tags, data)
-            if addr.endswith('/fader') or addr.endswith('/on') or addr.startswith('/config/mute'):
+            if addr.endswith('/fader') or addr.endswith('/on') or addr.startswith('/config/mute') or addr.startswith('/fx/'):
                 self.state.received_osc(addr, data[0])
-            #elif addr.startswith('/fx/'):
-            #    print 'received fx type: %s on address %s' % (data, addr)
             elif addr == '/xinfo':
                 self.info_response = data[:]
     
@@ -83,18 +80,3 @@ class XAirClient:
             self.client.send(msg)
             #print 'sending: %s' % (msg)
             
-    def update_callback(self, base_addr, fader = None, on = None):
-        if fader != None:
-            self.send(base_addr + '/fader', fader)
-        if on != None:
-            if base_addr.startswith('/config'):
-                self.send(base_addr, on)
-            else:
-                self.send(base_addr + '/on', on)
-        if fader == None and on == None:
-            # Send parameter request
-            if base_addr.startswith('/config') or base_addr.startswith('/fx/'):
-                self.send(base_addr)
-            else:
-                self.send(base_addr + '/fader')
-                self.send(base_addr + '/on')
