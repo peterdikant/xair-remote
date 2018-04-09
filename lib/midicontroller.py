@@ -1,4 +1,5 @@
 import thread
+import time
 from mixerstate import MixerState
 from mido import Message, open_input, open_output, get_input_names
 
@@ -10,6 +11,45 @@ def print_ports():
     for name in get_input_names():
         print '    %s' % name
 
+class TempoDetector:
+    """
+    Detect song tempo via a tap button
+    """
+    _MAX_TAP_DURATION = 3.0
+    
+    current_tempo = 0.5
+    
+    def __init__(self, midi_controller):
+        self.midi_controller = midi_controller
+        self.last_tap = 0
+        self.tap_num = 0
+        self.tap_delta = 0
+        thread.start_new_thread(self.blink, ())
+    
+    def tap(self):
+        current_time = time.time()
+        if current_time - self.last_tap > self._MAX_TAP_DURATION:
+            # Start with new tap cycle
+            self.tap_num = 0
+            self.tap_delta = 0
+        else:
+            self.tap_num += 1
+            self.tap_delta += current_time - self.last_tap
+            if self.tap_num > 0:
+                # Update tempo in mixer after at least 2 taps
+                self.midi_controller.update_tempo(self.tap_delta / self.tap_num, True)
+                self.current_tempo = self.tap_delta / self.tap_num
+        self.last_tap = current_time
+        
+    def blink(self):
+        try:
+            while True:
+                self.midi_controller.tempo_led(True)
+                time.sleep(self.current_tempo * 0.25)
+                self.midi_controller.tempo_led(False)
+                time.sleep(self.current_tempo * 0.75)
+        except KeyboardInterrupt:
+            exit()
 
 class MidiController:
     """
@@ -27,14 +67,15 @@ class MidiController:
     def __init__(self, devicename, state):
         self.state = state
         self.state.midi_sender = self.update_callback
-        
+    
         try:
             self.inport = open_input(devicename)
             self.outport = open_output(devicename)
         except IOError:
             print 'Error: MIDI port %s does not exist!' % devicename
             exit()
-            
+        
+        self.tempo_detector = TempoDetector(self)
         self.activate_layer(0)
         thread.start_new_thread(self.midi_listener, ())
         print 'Successfully setup MIDI port %s.' % devicename
@@ -57,6 +98,8 @@ class MidiController:
                                                       note = msg.note, velocity = 0))
                     elif msg.note in self.midi_cmds_mgrp:
                         self.state.received_midi(mute_group = self.midi_cmds_mgrp.index(msg.note), on = 1)
+                    elif msg.note == self.midi_cmds_tempo:
+                        self.tempo_detector.tap()
                     else:
                         # unassigned buttons should stay off
                         self.outport.send(Message('note_off', channel = self.midi_channel,
@@ -68,6 +111,8 @@ class MidiController:
                         self.state.received_midi(channel = self.midi_cmds_on.index(msg.note), on = 1)
                     elif msg.note in self.midi_cmds_mgrp:
                         self.state.received_midi(mute_group = self.midi_cmds_mgrp.index(msg.note), on = 0)
+                    elif msg.note == self.midi_cmds_tempo:
+                        self.tempo_detector.tap()
                 else:
                     print 'Received unknown {}'.format(msg)
         except KeyboardInterrupt:
@@ -134,3 +179,16 @@ class MidiController:
             else:
                 self.outport.send(Message('note_on', channel = self.midi_channel,
                                           note = self.midi_cmds_mgrp[mute_group], velocity = 127))
+    
+    def tempo_led(self, on):
+        if on == True:
+            self.outport.send(Message('note_on', channel = self.midi_channel, note = self.midi_cmds_tempo, velocity = 127))
+        else:
+            self.outport.send(Message('note_off', channel = self.midi_channel, note = self.midi_cmds_tempo, velocity = 0))
+    
+    def update_tempo(self, tempo, detected = False):
+        if detected == True:
+            self.state.update_tempo(tempo)
+        else:
+            self.tempo_detector.current_tempo = tempo
+        

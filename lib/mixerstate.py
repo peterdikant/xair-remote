@@ -160,3 +160,7 @@ class MixerState:
         #for i in range(1, 5):
         #    self.osc_sender(base_addr = '/fx/%d/type' % i)
         #    time.sleep(0.01)
+    
+    def update_tempo(self, tempo):
+        print "Detected tempo %dms" % int(tempo * 1000)
+        
