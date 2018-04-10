@@ -127,6 +127,12 @@ class MixerState:
                 self.midi_controller.update_tempo(value * 3)
         elif addr.startswith('/fx/') and addr.endswith('/type'):
             self.fx_slots[int(addr[4:5]) - 1] = value
+            if value in self._DELAY_FX_IDS:
+                # slot contains a delay, get current time value
+                param_id = '01'
+                if value == 10:
+                    param_id = '02'
+                self.xair_client.send(address = '/fx/%s/par/%s' % (addr[4:5], param_id))
         else:
             for i in range(0, 5):
                 for j in range(0, 8):

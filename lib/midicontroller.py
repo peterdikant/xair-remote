@@ -45,9 +45,9 @@ class TempoDetector:
         try:
             while True:
                 self.midi_controller.tempo_led(True)
-                time.sleep(self.current_tempo * 0.25)
+                time.sleep(self.current_tempo * 0.2)
                 self.midi_controller.tempo_led(False)
-                time.sleep(self.current_tempo * 0.75)
+                time.sleep(self.current_tempo * 0.8)
         except KeyboardInterrupt:
             exit()
 

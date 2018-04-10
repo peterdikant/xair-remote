@@ -33,7 +33,7 @@ Run the app:
 If the app can not find your controller or connect to the X-Air mixer, it will terminate with an error message explaining the problem. If everything started up successfully, the X-Touch mini will reflect the current mixer state and the console output will look like this:
 
 	Successfully setup MIDI port X-TOUCH MINI.
-	Successfully connected to XR18 with firmware 1.16 at 192.168.178.37.
+	Successfully connected to XR18 with firmware 1.17 at 192.168.178.37.
 
 ## Using
 
