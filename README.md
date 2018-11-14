@@ -24,14 +24,21 @@ On MacOS, the output might look like this:
 	    X-TOUCH MINI
 	    X18/XR18
 
-You need to start the app with the port name of your X-Touch Mini and the ip address of your X-Air mixer. If the port name contains whitespace characters (like it does in this example) you need to enclose it in double quotes.
+You need to start the app with the port name of your X-Touch Mini. If the port name contains whitespace characters (like it does in this example) you need to enclose it in double quotes.
+
+You may specify an ip address for the mixer. If you don't specify the address, the app will try to locate the mixer on your network.
 
 Run the app:
+
+	$ python xair-remote.py "X-TOUCH MINI"
+
+or
 
 	$ python xair-remote.py "X-TOUCH MINI" 192.168.178.37
 
 If the app can not find your controller or connect to the X-Air mixer, it will terminate with an error message explaining the problem. If everything started up successfully, the X-Touch mini will reflect the current mixer state and the console output will look like this:
 
+	Found XR18 with firmware 1.17 on IP 192.168.178.37
 	Successfully setup MIDI port X-TOUCH MINI.
 	Successfully connected to XR18 with firmware 1.17 at 192.168.178.37.
 
@@ -75,6 +82,7 @@ To exit press `CTRL + C`.
 Following features are currently on my todo list:
 
 - [x] Tap Tempo button on `B10` with automatic detection of FX slot for delay plugin
+- [x] Automatically find mixer on the network
 - [ ] Think about possible ways to use layer B. Maybe edit channel details for the first 16 channels. For example: Gain, Low Cut, Gate Threshold, Compressor Threshold, 4x EQ Gain (low priority)
 
 ## License
