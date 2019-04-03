@@ -1,4 +1,5 @@
 import time
+import subprocess
 
 """
 This module holds the mixer state of the X-Air device
@@ -90,13 +91,29 @@ class MixerState:
         Channel('/config/mute/3'),
         Channel('/config/mute/4')
     ]
+
+    mpd_playing = True
     
     midi_controller = None
     xair_client = None
     
     def received_midi(self, channel = None, mute_group = None, fader = None, on = None):
         if channel != None:
-            if channel < 9 and self.layers[self.active_layer][channel] != None:
+            if self.active_layer == 2 and channel == 1:
+                if self.mpd_playing:
+                    try:
+                        subprocess.call(['mpc', 'pause'])
+                    except OSError:
+                        pass
+                    self.mpd_playing = False
+                else:
+                    try:
+                        subprocess.call(['mpc', 'play'])
+                    except OSError:
+                        pass
+                    self.mpd_playing = True
+                return False
+            elif channel < 9 and self.layers[self.active_layer][channel] != None:
                 if fader != None:
                     self.layers[self.active_layer][channel].fader = fader / 127.0
                     self.xair_client.send(address = self.layers[self.active_layer][channel].osc_base_addr + '/fader', 
