@@ -65,17 +65,10 @@ class XAirClient:
         if self.client != None:
             msg = OSCMessage(address)
             if param != None:
-                # when sending values, ignore ACK response
-                self.last_cmd_time = time.time()
-                self.last_cmd_addr = address
                 if isinstance(param, list):
                     msg.extend(param)
                 else:
                     msg.append(param)
-            else:
-                # sending parameter request, don't ignore response
-                self.last_cmd_time = 0
-                self.last_cmd_addr = ''
             self.client.send(msg)
             #print 'sending: %s' % (msg)
             
