@@ -14,8 +14,6 @@ class XAirClient:
 
     XAIR_PORT = 10024
 
-    last_cmd_addr = ''
-    last_cmd_time = 0
     info_response = []
     
     def __init__(self, address, state):
@@ -45,10 +43,6 @@ class XAirClient:
             exit()
         
     def msg_handler(self, addr, tags, data, client_address):
-        if time.time() - self.last_cmd_time < self._WAIT_TIME and addr == self.last_cmd_addr:
-            #print 'Ignoring %s' % addr
-            self.last_cmd_addr = ''
-        else:
             #print 'OSCReceived("%s", %s, %s)' % (addr, tags, data)
             if addr.endswith('/fader') or addr.endswith('/on') or addr.startswith('/config/mute') or addr.startswith('/fx/'):
                 self.state.received_osc(addr, data[0])
@@ -56,10 +50,13 @@ class XAirClient:
                 self.info_response = data[:]
     
     def refresh_connection(self):
+        # Tells mixer to send changes in state that have not been recieved from this OSC Client
+        #   /xremote        - all parameter changes are broadcast to all active clients (Max 4)
+        #   /xremotefnb     - No Feed Back. Parameter changes are only sent to the active clients which didn't initiate the change
         try:
             while True:
                 if self.client != None:
-                    self.send("/xremote")
+                    self.send("/xremotenfb")
                 time.sleep(self._REFRESH_TIMEOUT)
         except KeyboardInterrupt:
             exit()
