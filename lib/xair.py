@@ -3,7 +3,6 @@ import thread
 import socket
 from OSC import OSCServer, OSCClient, OSCMessage, decodeOSC
 from mixerstate import MixerState
-import Queue
 
 class XAirClient:
     """
@@ -16,7 +15,6 @@ class XAirClient:
     XAIR_PORT = 10024
 
     info_response = []
-
     
     def __init__(self, address, state):
         self.state = state
@@ -45,15 +43,14 @@ class XAirClient:
             exit()
         
     def msg_handler(self, addr, tags, data, client_address):
-            print 'OSCReceived("%s", %s, %s)' % (addr, tags, data)        
-            if addr.endswith('/fader') or addr.endswith('/on') or addr.startswith('/config/mute') or addr.startswith('/fx/') or addr.endswith('/config/solo/source') or addr.endswith('preamp/rtnsw') or addr.endswith('/level'):
+            #print 'OSCReceived("%s", %s, %s)' % (addr, tags, data)
+            if addr.endswith('/fader') or addr.endswith('/on') or addr.startswith('/config/mute') or addr.startswith('/fx/'):
                 self.state.received_osc(addr, data[0])
             elif addr == '/xinfo':
                 self.info_response = data[:]
     
     def refresh_connection(self):
-        # Tells mixer to only send changes in state that have not been recieved from this OSC Client. 
-        # FYI
+        # Tells mixer to send changes in state that have not been recieved from this OSC Client
         #   /xremote        - all parameter changes are broadcast to all active clients (Max 4)
         #   /xremotefnb     - No Feed Back. Parameter changes are only sent to the active clients which didn't initiate the change
         try:
@@ -68,13 +65,19 @@ class XAirClient:
         if self.client != None:
             msg = OSCMessage(address)
             if param != None:
+                # when sending values, ignore ACK response
+                self.last_cmd_time = time.time()
+                self.last_cmd_addr = address
                 if isinstance(param, list):
                     msg.extend(param)
                 else:
-                    msg.append(param) 
-            print 'sending: %s' % (msg)
+                    msg.append(param)
+            else:
+                # sending parameter request, don't ignore response
+                self.last_cmd_time = 0
+                self.last_cmd_addr = ''
             self.client.send(msg)
-            
+            #print 'sending: %s' % (msg)
             
 def find_mixer():
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -93,4 +96,3 @@ def find_mixer():
     else:
         print "Found " + response[4] + " with firmware " + response[5] + " on IP " + response[2]
         return response[2]
-
