@@ -1,15 +1,7 @@
-import thread
+import threading
 import time
-from mixerstate import MixerState
-from mido import Message, open_input, open_output, get_input_names
-
-def print_ports():
-    """
-    Print out the names of all connected midi controllers
-    """
-    print 'Connected MIDI Ports:'
-    for name in get_input_names():
-        print '    %s' % name
+from .mixerstate import MixerState
+from mido import Message, open_input, open_output, get_input_names, get_output_names
 
 class TempoDetector:
     """
@@ -24,7 +16,7 @@ class TempoDetector:
         self.last_tap = 0
         self.tap_num = 0
         self.tap_delta = 0
-        thread.start_new_thread(self.blink, ())
+        threading.Thread(target=self.blink, daemon=True).start()
     
     def tap(self):
         current_time = time.time()
@@ -63,21 +55,40 @@ class MidiController:
     midi_cmds_mgrp = [0, 1, 2, 16]
     midi_cmds_tempo = 17
     midi_cmds_lr = 9
+
+    inport = None
+    outport = None
     
-    def __init__(self, devicename, state):
+    def __init__(self, state):
         self.state = state
     
-        try:
-            self.inport = open_input(devicename)
-            self.outport = open_output(devicename)
-        except IOError:
-            print 'Error: MIDI port %s does not exist!' % devicename
-            exit()
+        for name in get_input_names():
+            if "x-touch mini" in name.lower():
+                print('Using MIDI input: ' + name)
+                try:
+                    self.inport = open_input(name)
+                except IOError:
+                    print('Error: Can not open MIDI input port ' + name)
+                    exit()
+                break
+
+        for name in get_output_names():
+            if "x-touch mini" in name.lower():
+                print('Using MIDI output: ' + name)
+                try:
+                    self.outport = open_output(name)
+                except IOError:
+                    print('Error: Can not open MIDI input port ' + name)
+                    exit()
+                break
         
+        if self.inport is None or self.outport is None:
+            print('X-Touch Mini not found. Make sure device is connected!')
+            exit()
+
         self.tempo_detector = TempoDetector(self)
         self.activate_layer(0)
-        thread.start_new_thread(self.midi_listener, ())
-        print 'Successfully setup MIDI port %s.' % devicename
+        threading.Thread(target=self.midi_listener,daemon=True).start()
         
     def midi_listener(self):
         try:
@@ -113,7 +124,7 @@ class MidiController:
                     elif msg.note == self.midi_cmds_tempo:
                         self.tempo_detector.tap()
                 else:
-                    print 'Received unknown {}'.format(msg)
+                    print('Received unknown {}'.format(msg))
         except KeyboardInterrupt:
             inport.close()
             outport.close()

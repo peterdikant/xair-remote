@@ -14,33 +14,21 @@ To get help run:
 
 	$ python xair-remote.py -h
 
-Connect your X-Touch Mini controller and identify the name of the MIDI port this controller uses:
+The app will automatically detect both your X-Touch controller and the XR18. So connect the controller and make sure the XR18 is reachable on your network. Now you can start the app:
 
-	$ python xair-remote.py -l
-
-On MacOS, the output might look like this:
-
-	Connected MIDI Ports:
-	    X-TOUCH MINI
-	    X18/XR18
-
-You need to start the app with the port name of your X-Touch Mini. If the port name contains whitespace characters (like it does in this example) you need to enclose it in double quotes.
-
-You may specify an ip address for the mixer. If you don't specify the address, the app will try to locate the mixer on your network.
-
-Run the app:
-
-	$ python xair-remote.py "X-TOUCH MINI"
-
-or
-
-	$ python xair-remote.py "X-TOUCH MINI" 192.168.178.37
+	$ python xair-remote.py
 
 If the app can not find your controller or connect to the X-Air mixer, it will terminate with an error message explaining the problem. If everything started up successfully, the X-Touch mini will reflect the current mixer state and the console output will look like this:
 
 	Found XR18 with firmware 1.17 on IP 192.168.178.37
-	Successfully setup MIDI port X-TOUCH MINI.
+	Using MIDI input: X-TOUCH MINI
+	Using MIDI output: X-TOUCH MINI
 	Successfully connected to XR18 with firmware 1.17 at 192.168.178.37.
+
+Startup will fail if the X-Touch controller is not connected or the XR18 could not be located on the network. In the latter case you could try to specify the IP address of the mixer on the command line:
+
+	$ python xair-remote.py 192.168.178.37
+
 
 ## Using
 

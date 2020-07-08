@@ -1,8 +1,8 @@
 import time
-import thread
+import threading
 import socket
 from OSC import OSCServer, OSCClient, OSCMessage, decodeOSC
-from mixerstate import MixerState
+from .mixerstate import MixerState
 
 class XAirClient:
     """
@@ -22,16 +22,16 @@ class XAirClient:
         self.server.addMsgHandler("default", self.msg_handler)
         self.client = OSCClient(server = self.server)
         self.client.connect((address, self.XAIR_PORT))
-        thread.start_new_thread(self.run_server, ())
+        threading.Thread(target=self.run_server, daemon=True).start()
     
     def validate_connection(self):
         self.send('/xinfo')
         time.sleep(self._CONNECT_TIMEOUT)
         if len(self.info_response) > 0:
-            print 'Successfully connected to %s with firmware %s at %s.' % (self.info_response[2], 
-                    self.info_response[3], self.info_response[0])
+            print('Successfully connected to %s with firmware %s at %s.' % (self.info_response[2], 
+                    self.info_response[3], self.info_response[0]))
         else:
-            print 'Error: Failed to setup OSC connection to mixer. Please check for correct ip address.'
+            print('Error: Failed to setup OSC connection to mixer. Please check for correct ip address.')
             exit()
         
     def run_server(self):
@@ -79,13 +79,13 @@ def find_mixer():
     try:
         response = decodeOSC(client.recv(512))
     except socket.timeout:
-        print "No server found"
+        print('No server found')
         return None
     client.close()
 
     if response[0] != '/xinfo':
-        print "Unknown response"
+        print('Unknown response')
         return None
     else:
-        print "Found " + response[4] + " with firmware " + response[5] + " on IP " + response[2]
+        print('Found ' + response[4] + ' with firmware ' + response[5] + ' on IP ' + response[2])
         return response[2]
