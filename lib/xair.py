@@ -22,7 +22,9 @@ class XAirClient:
         self.server.addMsgHandler("default", self.msg_handler)
         self.client = OSCClient(server = self.server)
         self.client.connect((address, self.XAIR_PORT))
-        threading.Thread(target=self.run_server, daemon=True).start()
+        worker = threading.Thread(target=self.run_server)
+        worker.daemon = True
+        worker.start()
     
     def validate_connection(self):
         self.send('/xinfo')

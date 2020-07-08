@@ -16,7 +16,9 @@ class TempoDetector:
         self.last_tap = 0
         self.tap_num = 0
         self.tap_delta = 0
-        threading.Thread(target=self.blink, daemon=True).start()
+        worker = threading.Thread(target=self.blink)
+        worker.daemon = True
+        worker.start()
     
     def tap(self):
         current_time = time.time()
@@ -88,7 +90,9 @@ class MidiController:
 
         self.tempo_detector = TempoDetector(self)
         self.activate_layer(0)
-        threading.Thread(target=self.midi_listener,daemon=True).start()
+        worker = threading.Thread(target=self.midi_listener)
+        worker.daemon = True
+        worker.start()
         
     def midi_listener(self):
         try:
