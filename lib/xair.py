@@ -23,12 +23,14 @@ class XAirClient:
         self.state = state
         # First create a client and bind it to a network port
         self.client = SimpleUDPClient(address, self.XAIR_PORT)
+        self.client._sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.client._sock.bind(('', 0))
-        client_address, client_port = self.client._sock.getsockname()
+        _client_address, client_port = self.client._sock.getsockname()
         # Now use that port for a server to receive responses from mixer
         dispatcher = Dispatcher()
         dispatcher.set_default_handler(self.msg_handler)
-        self.server = BlockingOSCUDPServer(("0.0.0.0", client_port), dispatcher)
+        BlockingOSCUDPServer.allow_reuse_address = True
+        self.server = BlockingOSCUDPServer(('0.0.0.0', client_port), dispatcher)
         worker = threading.Thread(target = self.run_server)
         worker.daemon = True
         worker.start()
@@ -49,7 +51,7 @@ class XAirClient:
         except KeyboardInterrupt:
             exit()
         
-    def msg_handler(self, addr: str, *data: List[Any]) -> None:
+    def msg_handler(self, addr, *data):
             #print 'OSCReceived("%s", %s, %s)' % (addr, tags, data)
             if addr.endswith('/fader') or addr.endswith('/on') or addr.startswith('/config/mute') or addr.startswith('/fx/'):
                 self.state.received_osc(addr, data[0])
@@ -63,7 +65,7 @@ class XAirClient:
         try:
             while True:
                 if self.client != None:
-                    self.client.send_message("/xremotenfb")
+                    self.client.send_message("/xremotenfb", None)
                 time.sleep(self._REFRESH_TIMEOUT)
         except KeyboardInterrupt:
             exit()
@@ -75,7 +77,7 @@ class XAirClient:
 def find_mixer():
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, True)
-    client.sendto("/xinfo\0\0", ("<broadcast>", XAirClient.XAIR_PORT))
+    client.sendto("/xinfo\0\0".encode(), ("<broadcast>", XAirClient.XAIR_PORT))
     try:
         response = OscMessage(client.recv(512))
     except socket.timeout:
@@ -83,9 +85,9 @@ def find_mixer():
         return None
     client.close()
 
-    if response[0] != '/xinfo':
+    if response.address != '/xinfo':
         print('Unknown response')
         return None
     else:
-        print('Found ' + response[4] + ' with firmware ' + response[5] + ' on IP ' + response[2])
-        return response[2]
+        print('Found ' + response.params[2] + ' with firmware ' + response.params[3] + ' on IP ' + response.params[0])
+        return response.params[0]

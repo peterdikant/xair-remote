@@ -130,8 +130,8 @@ class MidiController:
                 else:
                     print('Received unknown {}'.format(msg))
         except KeyboardInterrupt:
-            inport.close()
-            outport.close()
+            self.inport.close()
+            self.outport.close()
             exit()
             
     def activate_layer(self, layer, send_active = True):
