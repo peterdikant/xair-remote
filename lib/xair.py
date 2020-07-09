@@ -1,7 +1,10 @@
 import time
 import threading
 import socket
-from OSC import OSCServer, OSCClient, OSCMessage, decodeOSC
+from pythonosc.dispatcher import Dispatcher
+from pythonosc.osc_server import BlockingOSCUDPServer
+from pythonosc.udp_client import SimpleUDPClient
+from pythonosc.osc_message import OscMessage
 from .mixerstate import MixerState
 
 class XAirClient:
@@ -18,11 +21,15 @@ class XAirClient:
     
     def __init__(self, address, state):
         self.state = state
-        self.server = OSCServer(("", 0))
-        self.server.addMsgHandler("default", self.msg_handler)
-        self.client = OSCClient(server = self.server)
-        self.client.connect((address, self.XAIR_PORT))
-        worker = threading.Thread(target=self.run_server)
+        # First create a client and bind it to a network port
+        self.client = SimpleUDPClient(address, self.XAIR_PORT)
+        self.client._sock.bind(('', 0))
+        client_address, client_port = self.client._sock.getsockname()
+        # Now use that port for a server to receive responses from mixer
+        dispatcher = Dispatcher()
+        dispatcher.set_default_handler(self.msg_handler)
+        self.server = BlockingOSCUDPServer(("0.0.0.0", client_port), dispatcher)
+        worker = threading.Thread(target = self.run_server)
         worker.daemon = True
         worker.start()
     
@@ -40,11 +47,9 @@ class XAirClient:
         try:
             self.server.serve_forever()
         except KeyboardInterrupt:
-            self.client.close()
-            self.server.close()
             exit()
         
-    def msg_handler(self, addr, tags, data, client_address):
+    def msg_handler(self, addr: str, *data: List[Any]) -> None:
             #print 'OSCReceived("%s", %s, %s)' % (addr, tags, data)
             if addr.endswith('/fader') or addr.endswith('/on') or addr.startswith('/config/mute') or addr.startswith('/fx/'):
                 self.state.received_osc(addr, data[0])
@@ -58,28 +63,21 @@ class XAirClient:
         try:
             while True:
                 if self.client != None:
-                    self.send("/xremotenfb")
+                    self.client.send_message("/xremotenfb")
                 time.sleep(self._REFRESH_TIMEOUT)
         except KeyboardInterrupt:
             exit()
             
     def send(self, address, param = None):
         if self.client != None:
-            msg = OSCMessage(address)
-            if param != None:
-                if isinstance(param, list):
-                    msg.extend(param)
-                else:
-                    msg.append(param)
-            self.client.send(msg)
-            #print 'sending: %s' % (msg)
+            self.client.send_message(address, param)
             
 def find_mixer():
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, True)
     client.sendto("/xinfo\0\0", ("<broadcast>", XAirClient.XAIR_PORT))
     try:
-        response = decodeOSC(client.recv(512))
+        response = OscMessage(client.recv(512))
     except socket.timeout:
         print('No server found')
         return None
