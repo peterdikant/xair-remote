@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 from lib.midicontroller import MidiController
 from lib.xair import XAirClient, find_mixer

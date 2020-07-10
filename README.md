@@ -4,27 +4,15 @@ Use a Behringer X-Touch Mini MIDI controller to remote control a Behringer X-Air
 
 ## Installing
 
-You can use Python 2 or 3. Please make sure to install required libraries. For Python 2 use:
-
-	$ sudo pip install -r requirements.txt
-
-For Python 3 use:
+You need Python 3.5 or later. Please make sure to install required libraries:
 
 	$ sudo pip3 install -r requirements.txt
 
 ## Update
 
-If you update from a previous version, please make sure to install the library `python-osc` which has replaced the old library `PyOSC`:
-
-	$ sudo pip install python-osc
-
-or 
-
-	$ sudo pip3 install python-osc
+If you update from a previous version, please make sure that you run at least Python 3.5 and install all required libraries as described in the previous section.
 
 ## Running
-
-All examples are run with Python 3. If you want to run with Python 2, replace `python3` with `python`.
 
 To get help run:
 
