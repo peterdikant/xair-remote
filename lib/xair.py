@@ -3,9 +3,27 @@ import threading
 import socket
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import BlockingOSCUDPServer
-from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.osc_message import OscMessage
+from pythonosc.osc_message_builder import OscMessageBuilder
 from .mixerstate import MixerState
+
+class OSCClientServer(BlockingOSCUDPServer):
+    def __init__(self, address, dispatcher):
+        super().__init__(('', 0), dispatcher)
+        self.xr_address = address
+
+    def send_message(self, address, value):
+        builder = OscMessageBuilder(address = address)
+        if value is None:
+            values = []
+        elif isinstance(value, list):
+            values = value
+        else:
+            values = [value]
+        for val in values:
+            builder.add_arg(val)
+        msg = builder.build()
+        self.socket.sendto(msg.dgram, self.xr_address)
 
 class XAirClient:
     """
@@ -21,16 +39,9 @@ class XAirClient:
     
     def __init__(self, address, state):
         self.state = state
-        # First create a client and bind it to a network port
-        self.client = SimpleUDPClient(address, self.XAIR_PORT)
-        self.client._sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.client._sock.bind(('', 0))
-        _client_address, client_port = self.client._sock.getsockname()
-        # Now use that port for a server to receive responses from mixer
         dispatcher = Dispatcher()
         dispatcher.set_default_handler(self.msg_handler)
-        BlockingOSCUDPServer.allow_reuse_address = True
-        self.server = BlockingOSCUDPServer(('0.0.0.0', client_port), dispatcher)
+        self.server = OSCClientServer((address, self.XAIR_PORT), dispatcher)
         worker = threading.Thread(target = self.run_server)
         worker.daemon = True
         worker.start()
@@ -49,6 +60,7 @@ class XAirClient:
         try:
             self.server.serve_forever()
         except KeyboardInterrupt:
+            self.server.shutdown()
             exit()
         
     def msg_handler(self, addr, *data):
@@ -64,15 +76,13 @@ class XAirClient:
         #   /xremotefnb     - No Feed Back. Parameter changes are only sent to the active clients which didn't initiate the change
         try:
             while True:
-                if self.client != None:
-                    self.client.send_message("/xremotenfb", None)
+                self.server.send_message("/xremotenfb", None)
                 time.sleep(self._REFRESH_TIMEOUT)
         except KeyboardInterrupt:
             exit()
             
     def send(self, address, param = None):
-        if self.client != None:
-            self.client.send_message(address, param)
+        self.server.send_message(address, param)
             
 def find_mixer():
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)

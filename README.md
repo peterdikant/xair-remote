@@ -4,30 +4,46 @@ Use a Behringer X-Touch Mini MIDI controller to remote control a Behringer X-Air
 
 ## Installing
 
-Make sure that you are running Python 2.7. Now install the module dependencies via:
+You can use Python 2 or 3. Please make sure to install required libraries. For Python 2 use:
 
 	$ sudo pip install -r requirements.txt
 
+For Python 3 use:
+
+	$ sudo pip3 install -r requirements.txt
+
+## Update
+
+If you update from a previous version, please make sure to install the library `python-osc` which has replaced the old library `PyOSC`:
+
+	$ sudo pip install python-osc
+
+or 
+
+	$ sudo pip3 install python-osc
+
 ## Running
+
+All examples are run with Python 3. If you want to run with Python 2, replace `python3` with `python`.
 
 To get help run:
 
-	$ python xair-remote.py -h
+	$ python3 xair-remote.py -h
 
 The app will automatically detect both your X-Touch controller and the XR18. So connect the controller and make sure the XR18 is reachable on your network. Now you can start the app:
 
-	$ python xair-remote.py
+	$ python3 xair-remote.py
 
 If the app can not find your controller or connect to the X-Air mixer, it will terminate with an error message explaining the problem. If everything started up successfully, the X-Touch mini will reflect the current mixer state and the console output will look like this:
 
-	Found XR18 with firmware 1.17 on IP 192.168.178.37
+	Found XR18 with firmware 1.17 on IP 192.168.178.31
 	Using MIDI input: X-TOUCH MINI
 	Using MIDI output: X-TOUCH MINI
-	Successfully connected to XR18 with firmware 1.17 at 192.168.178.37.
+	Successfully connected to XR18 with firmware 1.17 at 192.168.178.31.
 
 Startup will fail if the X-Touch controller is not connected or the XR18 could not be located on the network. In the latter case you could try to specify the IP address of the mixer on the command line:
 
-	$ python xair-remote.py 192.168.178.37
+	$ python3 xair-remote.py 192.168.178.37
 
 
 ## Using
