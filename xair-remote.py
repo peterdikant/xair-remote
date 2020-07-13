@@ -13,6 +13,7 @@ if __name__ == '__main__':
         address = find_mixer()
         if address is None:
             print('Error: Could not find any mixers in network. Please specify ip address manually.')
+            exit()
         else:
             args.xair_address = address
         
