@@ -16,7 +16,7 @@ if __name__ == '__main__':
             exit()
         else:
             args.xair_address = address
-        
+
     state = MixerState()
     midi = MidiController(state)
     state.midi_controller = midi

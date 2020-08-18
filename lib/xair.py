@@ -65,7 +65,7 @@ class XAirClient:
         
     def msg_handler(self, addr, *data):
             #print 'OSCReceived("%s", %s, %s)' % (addr, tags, data)
-            if addr.endswith('/fader') or addr.endswith('/on') or addr.startswith('/config/mute') or addr.startswith('/fx/'):
+            if addr.endswith('/fader') or addr.endswith('/on') or addr.endswith('/level') or addr.startswith('/config/mute') or addr.startswith('/fx/'):
                 self.state.received_osc(addr, data[0])
             elif addr == '/xinfo':
                 self.info_response = data[:]

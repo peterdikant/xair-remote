@@ -11,6 +11,10 @@ class Channel:
     """
     def __init__(self, addr):
         self.fader = 0.0
+        if addr.startswith('/ch') or addr.startswith('/rtn'):
+            self.sends = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        else:
+            self.sends = None
         self.on = 1
         self.osc_base_addr = addr
         
@@ -18,7 +22,7 @@ class Channel:
 class MixerState:
     """
     This stores the mixer state in the application. It also keeps
-    track of the current selected layer on the midi controller to
+    track of the current selected fader bank on the midi controller to
     decide whether state changes from the X-Air device need to be
     sent to the midi controller.
     """
@@ -28,9 +32,10 @@ class MixerState:
     
     fx_slots = [0, 0, 0, 0]
     
-    active_layer = -1
+    active_bank = -1
+ 
     # Each layer has 8 encoders and 8 buttons
-    layers = [
+    banks = [
         [
             Channel('/ch/01/mix'),
             Channel('/ch/02/mix'),
@@ -96,49 +101,62 @@ class MixerState:
     
     midi_controller = None
     xair_client = None
+
+    def toggle_mute_group(self, group):
+        if self.mute_groups[group].on == 1:
+            self.mute_groups[group].on = 0
+        else:
+            self.mute_groups[group].on = 1
+        self.xair_client.send(address = self.mute_groups[group].osc_base_addr, 
+                    param = self.mute_groups[group].on)
+        self.midi_controller.set_mute_grp(group, self.mute_groups[group].on)
+
+    def toggle_channel_mute(self, channel):
+        if self.banks[self.active_bank][channel] != None:
+            if self.banks[self.active_bank][channel].on == 1:
+                self.banks[self.active_bank][channel].on = 0
+            else:
+                self.banks[self.active_bank][channel].on = 1
+            self.xair_client.send(address = self.banks[self.active_bank][channel].osc_base_addr + '/on', 
+                            param = self.banks[self.active_bank][channel].on)
+            self.midi_controller.set_channel_mute(channel, self.banks[self.active_bank][channel].on)
     
-    def received_midi(self, channel = None, mute_group = None, fader = None, on = None):
-        if channel != None:
-            if self.active_layer == 2 and channel == 1:
-                if self.mpd_playing:
-                    try:
-                        subprocess.call(['mpc', 'pause'])
-                    except OSError:
-                        pass
-                    self.mpd_playing = False
-                else:
-                    try:
-                        subprocess.call(['mpc', 'play'])
-                    except OSError:
-                        pass
-                    self.mpd_playing = True
-                return False
-            elif channel < 9 and self.layers[self.active_layer][channel] != None:
-                if fader != None:
-                    self.layers[self.active_layer][channel].fader = fader / 127.0
-                    self.xair_client.send(address = self.layers[self.active_layer][channel].osc_base_addr + '/fader', 
-                            param = self.layers[self.active_layer][channel].fader)
-                elif on != None:
-                    self.layers[self.active_layer][channel].on = on
-                    self.xair_client.send(address = self.layers[self.active_layer][channel].osc_base_addr + '/on', 
-                            param = self.layers[self.active_layer][channel].on)
-                return True
-            elif channel == 9:
-                if fader != None:
-                    self.lr.fader = fader / 127.0
-                    self.xair_client.send(address = self.lr.osc_base_addr + '/fader', param = self.lr.fader)
-                return True
-        elif mute_group != None:
-            self.mute_groups[mute_group].on = on
-            self.xair_client.send(address = self.mute_groups[mute_group].osc_base_addr, 
-                    param = self.mute_groups[mute_group].on)
-        return False
-    
+    def toggle_mpc(self):
+        if self.mpd_playing:
+            try:
+                subprocess.call(['mpc', 'pause'])
+            except OSError:
+                pass
+            self.mpd_playing = False
+        else:
+            try:
+                subprocess.call(['mpc', 'play'])
+            except OSError:
+                pass
+            self.mpd_playing = True
+
+    def change_fader(self, fader, delta):
+        if self.banks[self.active_bank][fader] != None:
+            self.banks[self.active_bank][fader].fader = min(max(0.0, self.banks[self.active_bank][fader].fader + (delta / 200)), 1.0)
+            self.xair_client.send(address = self.banks[self.active_bank][fader].osc_base_addr + '/fader', 
+                            param = self.banks[self.active_bank][fader].fader)
+            self.midi_controller.set_channel_fader(fader, self.banks[self.active_bank][fader].fader)
+
+    def change_bus_send(self, bus, channel, delta):
+        if self.banks[self.active_bank][channel] != None and self.banks[self.active_bank][channel].sends != None:
+            self.banks[self.active_bank][channel].sends[bus] = min(max(0.0, self.banks[self.active_bank][channel].sends[bus] + (delta / 200)), 1.0)
+            self.xair_client.send(address = self.banks[self.active_bank][channel].osc_base_addr + '/{:0>2d}/level'.format(bus + 1),
+                            param = self.banks[self.active_bank][channel].sends[bus])
+            self.midi_controller.set_bus_send(bus, channel, self.banks[self.active_bank][channel].sends[bus])
+
+    def set_lr_fader(self, value):
+        self.xair_client.send(address = self.lr.osc_base_addr + '/fader', param = value)
+
     def received_osc(self, addr, value):
         if addr.startswith('/config/mute'):
             group = int(addr[-1:]) - 1
             self.mute_groups[group].on = value
-            self.midi_controller.send(mute_group = group, on = self.mute_groups[group].on)
+            self.midi_controller.set_mute_grp(group, value)
         elif addr.startswith('/fx') and (addr.endswith('/par/01') or addr.endswith('/par/02')):
             if self.fx_slots[int(addr[4:5]) - 1] in self._DELAY_FX_IDS:
                 self.midi_controller.update_tempo(value * 3)
@@ -153,15 +171,20 @@ class MixerState:
         else:
             for i in range(0, 5):
                 for j in range(0, 8):
-                    if self.layers[i][j] != None and addr.startswith(self.layers[i][j].osc_base_addr):
+                    if self.banks[i][j] != None and addr.startswith(self.banks[i][j].osc_base_addr):
                         if addr.endswith('/fader'):
-                            self.layers[i][j].fader = value
-                            if i == self.active_layer:
-                                self.midi_controller.send(channel = j, fader = int(self.layers[i][j].fader * 127))
+                            self.banks[i][j].fader = value
+                            if i == self.active_bank:
+                                self.midi_controller.set_ring(j, value)
                         elif addr.endswith('/on'):
-                            self.layers[i][j].on = value
-                            if i == self.active_layer:
-                                self.midi_controller.send(channel = j, on = self.layers[i][j].on)
+                            self.banks[i][j].on = value
+                            if i == self.active_bank:
+                                self.midi_controller.set_channel_mute(j, value)
+                        elif self.banks[i][j].sends != None and addr.endswith('/level'):
+                            bus = int(addr[-8:-6]) - 1
+                            self.banks[i][j].sends[bus] = value
+                            if i == self.active_bank:
+                                self.midi_controller.set_bus_send(bus, j, value)
                         break
                 else:
                     continue
@@ -171,12 +194,16 @@ class MixerState:
         # Refresh state for all faders and mutes
         for i in range(0, 5):
             for j in range(0, 8):
-                if self.layers[i][j] != None:
-                    self.xair_client.send(address = self.layers[i][j].osc_base_addr + '/fader')
+                if self.banks[i][j] != None:
+                    self.xair_client.send(address = self.banks[i][j].osc_base_addr + '/fader')
                     time.sleep(0.01)
-                    self.xair_client.send(address = self.layers[i][j].osc_base_addr + '/on')
+                    self.xair_client.send(address = self.banks[i][j].osc_base_addr + '/on')
                     time.sleep(0.01)
-                    
+                    if self.banks[i][j].sends != None:
+                        for k in range(len(self.banks[i][j].sends)):
+                            self.xair_client.send(address = self.banks[i][j].osc_base_addr + '/{:0>2d}/level'.format(k + 1))
+                            time.sleep(0.01)
+           
         # get all mute groups
         for i in range(0, 4):
             self.xair_client.send(address = self.mute_groups[i].osc_base_addr)
