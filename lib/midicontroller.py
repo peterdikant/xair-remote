@@ -147,32 +147,27 @@ class MidiController:
             exit()
     
     def button_pushed(self, button):
-        if self.active_layer == 0:
-            if button >= 11 and button <= 15:
-                # bank select buttons pressed
-                self.activate_bank(button - 11)
-            elif button == 9:
-                # tempo button pressed
-                self.tempo_detector.tap()
-            elif button == 8:
-                # mute grp 4 pressed
-                self.state.toggle_mute_group(3)
+        if button == 8:
+            # mute grp 4 pressed
+            self.state.toggle_mute_group(3)
+        elif button == 9:
+            # tempo button pressed
+            self.tempo_detector.tap()
+        elif button != 10:
+            if self.active_layer == 0:
+                if button >= 11 and button <= 15:
+                    # bank select buttons pressed
+                    self.activate_bank(button - 11)
+                else:
+                    # mute buttons pressed
+                    self.state.toggle_channel_mute(button)
             else:
-                # mute buttons pressed
-                self.state.toggle_channel_mute(button)
-        else:
-            if button >= 11 and button <= 13:
-                # bank select buttons pressed
-                self.activate_bank(button - 11)
-            elif button == 9:
-                # tempo button pressed
-                self.tempo_detector.tap()
-            elif button == 8:
-                # mute grp 4 pressed
-                self.state.toggle_mute_group(3)
-            else:
-                self.active_bus = button if button < 8 else button - 6
-                self.refresh_controls(self.state.active_bank)
+                if button >= 11 and button <= 13:
+                    # bank select buttons pressed
+                    self.activate_bank(button - 11)
+                else:
+                    self.active_bus = button if button < 8 else button - 6
+                    self.refresh_controls(self.state.active_bank)
 
     def knob_pushed(self, knob):
         if knob >= 0 and knob <= 3:
