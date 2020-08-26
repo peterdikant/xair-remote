@@ -46,6 +46,8 @@ You need to configure the device to start in MC mode. If the MC mode LED is not 
 
 To exit press `CTRL + C`.
 
+The folder `labels` contains labels to print and attach to your X-Touch as PDF and Excel files. You can change the labels to your specific setup. Make sure you print them in 100% size.
+
 ### Layer A
 
 Layer A is used to control the main mix.
