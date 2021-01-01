@@ -1,5 +1,6 @@
 import threading
 import time
+import os
 from .mixerstate import MixerState
 from mido import Message, open_input, open_output, get_input_names, get_output_names
 
@@ -111,7 +112,17 @@ class MidiController:
         worker = threading.Thread(target = self.midi_listener)
         worker.daemon = True
         worker.start()
-        
+
+    def monitor_ports(self):
+        try:
+            while True:
+                if self.inport.name not in get_input_names():
+                    print("X-Touch disconnected - Exiting")
+                    os._exit(1)
+                time.sleep(1)
+        except KeyboardInterrupt:
+            exit()
+
     def midi_listener(self):
         try:
             for msg in self.inport:
@@ -273,4 +284,3 @@ class MidiController:
             self.state.update_tempo(tempo)
         else:
             self.tempo_detector.current_tempo = tempo
-        

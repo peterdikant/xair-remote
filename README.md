@@ -35,7 +35,10 @@ Startup will fail if the X-Touch controller is not connected or the XR18 could n
 
 	$ python3 xair-remote.py 192.168.178.37
 
+The app can monitor the X-Touch connection and exit if the controller is disconnected. This functionality is enabled by setting the parameter `-m`:
 
+	$ python3 xair-remote.py -m
+	
 ## Using
 
 The following image is a schematic of all available controls on the X-Touch Mini:
