@@ -39,6 +39,8 @@ The app can monitor the X-Touch connection and exit if the controller is disconn
 
 	$ python3 xair-remote.py -m
 	
+Note: Monitoring does not work on all platforms. Linux works fine while MacOS does not detect disconnects.
+
 ## Using
 
 The following image is a schematic of all available controls on the X-Touch Mini:
