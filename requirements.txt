@@ -1,3 +1,4 @@
 mido
 python-rtmidi
 python-osc
+netifaces
