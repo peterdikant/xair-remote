@@ -2,6 +2,7 @@
 import time
 import threading
 import socket
+import netifaces
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import BlockingOSCUDPServer
 from pythonosc.osc_message import OscMessage
@@ -91,10 +92,12 @@ class XAirClient:
             return
         #print 'OSCReceived("%s", %s, %s)' % (addr, tags, data)
         if addr.endswith('/fader') or addr.endswith('/on') or addr.endswith('/level') or \
-                addr.startswith('/config/mute') or addr.startswith('/fx/'):
+                addr.startswith('/config/mute') or addr.endswith('/gain'):
             self.state.received_osc(addr, data[0])
         elif addr == '/xinfo':
             self.info_response = data[:]
+        elif addr.startswith('/meters'):
+            self.state.received_meters(addr, data)
         else:         #if self.state.debug and addr.start:
             print('OSCReceived("%s", %s)' % (addr, data))
 
@@ -110,6 +113,16 @@ class XAirClient:
         try:
             while not self.state.quit_called and self.server is not None:
                 self.server.send_message("/xremotenfb", None)
+                if self.state.levels:
+                    # using input levels, as these match the headamps when channels are remapped
+                    time.sleep(0.002)
+                    self.send(address="/meters", param=["/meters/2"])
+                if self.state.clip: # seems to crash if clipping protection runs for too long
+                    if self.state.debug:
+                        print("start auto level")
+                    self.state.clip = False
+                    if self.state.screen_obj is not None:
+                        self.state.screen_obj.gpio_button[1].disable[0] = 1
                 time.sleep(self._REFRESH_TIMEOUT)
                 if self.state.quit_called:
                     return
@@ -122,14 +135,19 @@ class XAirClient:
     def send(self, address, param=None):
         "Call the OSC agent to send a message"
         self.server.send_message(address, param)
-            
+
 def find_mixer():
     "Search for the IP address of the XAir mixer"
     print('Searching for mixer...')
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, True)
-    client.settimeout(15)
-    client.sendto("/xinfo\0\0".encode(), ("<broadcast>", XAirClient.XAIR_PORT))
+    client.settimeout(5)
+    for iface in netifaces.interfaces():
+        try:
+            bcast = netifaces.ifaddresses(iface)[netifaces.AF_INET][0]['broadcast']
+            client.sendto("/xinfo\0\0".encode(), (bcast, XAirClient.XAIR_PORT))
+        except:
+            pass
     try:
         response = OscMessage(client.recv(512))
     except socket.timeout:
