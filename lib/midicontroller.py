@@ -1,7 +1,7 @@
+"See class docstring"
 import threading
 import time
 import os
-from .mixerstate import MixerState
 from mido import Message, open_input, open_output, get_input_names, get_output_names
 
 class TempoDetector:
@@ -55,7 +55,7 @@ class MidiController:
     Fader 1-8: CC16 - CC23, Note 32 - 39 on push
     Turn right: Values 1 - 10 (Increment)
     Turn left: Values 65 - 72 (Decrement)
-    Buttons 1-8: Note 89, 90, 40, 41, 42, 43, 44, 45 
+    Buttons 1-8: Note 89, 90, 40, 41, 42, 43, 44, 45
     Buttons 9-16: Note 87, 88, 91, 92, 86, 93, 94, 95
     Master Fader: Pitch Wheel
     """
@@ -76,10 +76,10 @@ class MidiController:
 
     inport = None
     outport = None
-    
+
     def __init__(self, state):
         self.state = state
-    
+
         for name in get_input_names():
             if "x-touch mini" in name.lower():
                 print('Using MIDI input: ' + name)
@@ -87,7 +87,10 @@ class MidiController:
                     self.inport = open_input(name)
                 except IOError:
                     print('Error: Can not open MIDI input port ' + name)
-                    exit()
+                    self.state.quit_called = True
+                    self.state = None
+                    #exit()
+                    return
                 break
 
         for name in get_output_names():
@@ -97,35 +100,72 @@ class MidiController:
                     self.outport = open_output(name)
                 except IOError:
                     print('Error: Can not open MIDI input port ' + name)
-                    exit()
+                    self.state.quit_called = True
+                    self.state = None
+                    #exit()
+                    return
                 break
-        
+
         if self.inport is None or self.outport is None:
             print('X-Touch Mini not found. Make sure device is connected!')
-            exit()
+            self.state.quit_called = True
+            self.cleanup_controller()
+            #exit()
+            return
 
         self.tempo_detector = TempoDetector(self)
         self.change_layer(0)
         self.activate_bank(0)
         #self.activate_bus(0)
 
-        worker = threading.Thread(target = self.midi_listener)
+        for i in range(0, 18):
+            self.set_button(i, self.LED_OFF)    # clear all buttons
+
+        worker = threading.Thread(target=self.midi_listener)
         worker.daemon = True
         worker.start()
 
+        if self.state.monitor:
+            print('Monitoring X-Touch connection enabled')
+            monitor = threading.Thread(target=self.monitor_ports)
+            monitor.daemon = True
+            monitor.start()
+
+    def cleanup_controller(self):
+        "Cleanup mixer state if we see a quit call. Called from _init_ or worker thread."
+        for i in range(0, 18):
+            self.set_button(i, self.LED_OFF)    # clear all buttons
+        for i in range(0,8):
+            self.set_ring(i,-1)
+        if self.inport is not None:
+            self.inport.close()
+        if self.outport is not None:
+            self.outport.close()
+
     def monitor_ports(self):
+        "Method to exit if / when the X Touch disconnects"
         try:
-            while True:
+            while not self.state.quit_called:
                 if self.inport.name not in get_input_names():
                     print("X-Touch disconnected - Exiting")
-                    os._exit(1)
+                    #os._exit(1)
+                    self.state.quit_called = True
+                    return
+                if self.state.quit_called:
+                    return # end the thread if other threads have signed exit
                 time.sleep(1)
         except KeyboardInterrupt:
+            if self.state is not None:
+                self.state.quit_called = True
             exit()
 
     def midi_listener(self):
+        "Listen to midit inputs and respond."
         try:
             for msg in self.inport:
+                if self.state is None or self.state.quit_called:
+                    self.cleanup_controller()
+                    return
                 #print('Received {}'.format(msg))
                 if msg.type == 'control_change':
                     if msg.control in self.MIDI_ENCODER:
@@ -139,6 +179,8 @@ class MidiController:
                     else:
                         print('Received unknown {}'.format(msg))
                 elif msg.type == 'note_on' and msg.velocity == 127:
+                    if self.state.debug:
+                        print('Note {} pushed'.format(msg.note))
                     if msg.note in self.MIDI_PUSH:
                         self.knob_pushed(self.MIDI_PUSH.index(msg.note))
                     elif msg.note in self.MIDI_BUTTONS:
@@ -153,11 +195,13 @@ class MidiController:
                 elif msg.type != 'note_off' and msg.type != 'note_on':
                     print('Received unknown {}'.format(msg))
         except KeyboardInterrupt:
-            self.inport.close()
-            self.outport.close()
+            if self.state is not None:
+                self.state.quit_called = True
+            self.cleanup_controller()
             exit()
-    
+
     def button_pushed(self, button):
+        "On button press, call the relevant function"
         if button == 8:
             # mute grp 4 pressed
             self.state.toggle_mute_group(3)
@@ -181,6 +225,7 @@ class MidiController:
                     self.refresh_controls(self.state.active_bank)
 
     def knob_pushed(self, knob):
+        "On knob push reset the correct value"
         if knob >= 0 and knob <= 3:
             self.state.toggle_mute_group(knob)
         elif knob == 7:
@@ -246,10 +291,12 @@ class MidiController:
             self.set_button(8, on == 1)
 
     def set_channel_mute(self, channel, on):
+        "Send the mute value to the button"
         if self.active_layer == 0:
             self.set_button(channel, on == 0)
 
     def set_channel_fader(self, channel, value):
+        "Send the fader value to the encoder ring"
         if self.active_layer == 0:
             self.set_ring(channel, value)
 
@@ -258,17 +305,18 @@ class MidiController:
             self.set_ring(knob, value)
 
     def set_ring(self, ring, value):
-        # 0 = off, 1-11 = single, 17-27 = trim, 33-43 = fan, 49-54 = spread
+        "Turn on the appropriate LEDs on the encoder ring."
+        # 0 = off, 1-11 = single, 17-27 = pan, 33-43 = fan, 49-54 = spread
         # normalize value (0.0 - 1.0) to 0 - 11 range
         # values below 0 mean disabled
         if value >= 0.0:
-            self.outport.send(Message('control_change', channel = self.MC_CHANNEL, 
-                                  control = self.MIDI_RING[ring], 
-                                  value = 33 + round(value * 11)))
+            self.outport.send(Message('control_change', channel=self.MC_CHANNEL,
+                                      control = self.MIDI_RING[ring], 
+                                      value = 33 + round(value * 11)))
         else:
-            self.outport.send(Message('control_change', channel = self.MC_CHANNEL, 
-                                  control = self.MIDI_RING[ring], 
-                                  value = 0))
+            self.outport.send(Message('control_change', channel=self.MC_CHANNEL,
+                                      control=self.MIDI_RING[ring],
+                                      value=0))
 
     def set_button(self, button, on):
         if on == True:
