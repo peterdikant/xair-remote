@@ -192,12 +192,14 @@ class MidiController:
                     if self.state.debug:
                         print('Wheel set to {}'.format(msg))
                     if msg.pitch > 8000:
+                        self.cleanup_controller()
                         if self.state is not None:
                             self.state.quit_called = True
-                        self.cleanup_controller()
-                        if self.state.screen_obj is not None:
-                            self.state.screen_obj.quit()
-                        exit()
+                            if self.state.screen_obj is not None:
+                                self.state.screen_obj.quit()
+                        else:
+                            # we can't assert a quit signal so simply exit
+                            exit()
                 elif msg.type != 'note_off' and msg.type != 'note_on':
                     print('Received unknown {}'.format(msg))
                 if self.state.quit_called:
