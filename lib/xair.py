@@ -80,10 +80,9 @@ class XAirClient:
 
     def quit(self):
         if self.state is not None:
-            self.state.quit_called = True
-            if self.state.midi_controller is not None:
-                self.state.midi_controller.cleanup_controller()
-        self.stop_server()
+            self.state.shutdown()
+        else:
+            self.stop_server()
 
     def msg_handler(self, addr, *data):
         "Dispatch received OSC messages based on message type."
@@ -125,6 +124,7 @@ class XAirClient:
                         self.state.screen_obj.gpio_button[1].disable[0] = 1
                 time.sleep(self._REFRESH_TIMEOUT)
                 if self.state.quit_called:
+                    self.quit()
                     return
         except KeyboardInterrupt:
             self.quit()
