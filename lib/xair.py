@@ -63,7 +63,6 @@ class XAirClient:
             if self.server is not None:
                 self.server.shutdown()
                 self.server = None
-            #exit()
 
     def run_server(self):
         "Start the OSC communications agent in a seperate thread."
@@ -71,7 +70,6 @@ class XAirClient:
             self.server.serve_forever()
         except KeyboardInterrupt:
             self.quit()
-            exit()
 
     def stop_server(self):
         if self.server is not None:
@@ -128,7 +126,6 @@ class XAirClient:
                     return
         except KeyboardInterrupt:
             self.quit()
-            exit()
         except socket.error:
             self.quit()
 
