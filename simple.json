@@ -1,0 +1,66 @@
+{
+    "A": {
+        "encoders": [
+            ["fader", "/ch/01/mix", "0.750000"],
+            ["fader", "/ch/02/mix", "0.750000"],
+            ["fader", "/ch/03/mix", "0.750000"],
+            ["fader", "/ch/04/mix", "0.750000"],
+            ["fader", "/ch/05/mix", "0.750000"],
+            ["fader", "/ch/06/mix", "0.750000"],
+            ["fader", "/ch/07/mix", "0.750000"],
+            ["fader", "/ch/08/mix", "0.750000"]
+        ],
+        "buttons": [
+            ["mute", "/ch/01/mix", "on", "State"],
+            ["mute", "/ch/02/mix", "on", "State"],
+            ["mute", "/ch/03/mix", "on", "State"],
+            ["mute", "/ch/04/mix", "on", "State"],
+            ["mute", "/ch/05/mix", "on", "State"],
+            ["mute", "/ch/06/mix", "on", "State"],
+            ["mute", "/ch/07/mix", "on", "State"],
+            ["mute", "/ch/08/mix", "on", "State"],
+            ["mute", "/ch/09/mix", "on", "State"],
+            ["mute", "/ch/10/mix", "on", "State"],
+            ["mute", "/ch/11/mix", "on", "State"],
+            ["mute", "/ch/12/mix", "on", "State"],
+            ["mute", "/ch/13/mix", "on", "State"],
+            ["mute", "/ch/14/mix", "on", "State"],
+            ["mute", "/ch/15/mix", "on", "State"],
+            ["mute", "/ch/16/mix", "on", "State"],
+            ["layer", "A", "On"],
+            ["layer", "B", "Off"]
+        ]
+    },
+    "B": {
+        "encoders": [
+            ["fader", "/ch/09/mix", "0.750000"],
+            ["fader", "/ch/10/mix", "0.750000"],
+            ["fader", "/ch/11/mix", "0.750000"],
+            ["fader", "/ch/12/mix", "0.750000"],
+            ["fader", "/ch/13/mix", "0.750000"],
+            ["fader", "/ch/14/mix", "0.750000"],
+            ["fader", "/ch/15/mix", "0.750000"],
+            ["fader", "/ch/16/mix", "0.750000"]
+        ],
+        "buttons": [
+            ["mute", "/ch/01/mix", "on", "State"],
+            ["mute", "/ch/02/mix", "on", "State"],
+            ["mute", "/ch/03/mix", "on", "State"],
+            ["mute", "/ch/04/mix", "on", "State"],
+            ["mute", "/ch/05/mix", "on", "State"],
+            ["mute", "/ch/06/mix", "on", "State"],
+            ["mute", "/ch/07/mix", "on", "State"],
+            ["mute", "/ch/08/mix", "on", "State"],
+            ["mute", "/ch/09/mix", "on", "State"],
+            ["mute", "/ch/10/mix", "on", "State"],
+            ["mute", "/ch/11/mix", "on", "State"],
+            ["mute", "/ch/12/mix", "on", "State"],
+            ["mute", "/ch/13/mix", "on", "State"],
+            ["mute", "/ch/14/mix", "on", "State"],
+            ["mute", "/ch/15/mix", "on", "State"],
+            ["mute", "/ch/16/mix", "on", "State"],
+            ["layer", "A", "Off"],
+            ["layer", "B", "On"]
+        ]
+    }
+}
