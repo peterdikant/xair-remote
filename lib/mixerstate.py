@@ -28,13 +28,13 @@ class Channel:
 
     def toggle_mute(self, bus):
         """Toggle a mute on or off."""
-        if bus == "on":
+        if bus == "/on" or bus == "":
             """Toggle the state of the channel mute."""
             if self.ch_on == 1:
                 self.ch_on = 0
             else:
                 self.ch_on = 1
-            return(self.osc_base_addr + '/on',
+            return(self.osc_base_addr + bus,
                     self.ch_on, self.ch_on)
         else:
             """Toggle the state of a send mute."""
@@ -50,15 +50,15 @@ class Channel:
                         param, self.enables[bus_num])
             return(None, None, "Off")
 
-    def set_mute(self, value):
+    def set_mute(self, bus, value):
         """Set the state of the channel mute."""
         self.ch_on = value
-        return(self.osc_base_addr + '/on',
+        return(self.osc_base_addr + bus,
                 self.ch_on, self.ch_on)
 
     def get_mute(self, bus):
         """Return the curent mute on/off."""
-        if bus == "on":
+        if bus == "/on":
             return(self.ch_on)
         else:
             if self.enables is not None:
@@ -66,53 +66,42 @@ class Channel:
                 return(self.enables[bus_num])
         return ("Off")
 
-    def change_fader(self, delta):
-        """Change the level of the fader."""
-        self.fader = min(max(0.0, self.fader + (delta / 200)), 1.0)
-        return(self.osc_base_addr + '/fader',
-                self.fader, self.fader)
-
-    def set_fader(self, value):
-        """Set the level of the fader."""
-        self.fader = value
-        return(self.osc_base_addr + '/fader',
-                self.fader, self.fader)
-
-    def get_fader(self):
-        """Return the curent fader value."""
-        return(self.fader)
-
-    def change_gain(self, delta):
-        """Change the gain of the mic pre aka headamp."""
-        self.fader = min(max(0.0, self.fader + (delta / 200)), 1.0)
-        return(self.osc_base_addr + '/gain',
-                self.fader, self.fader)
-
-    def change_bus_send(self, bus, delta):
-        """Change the level of a bus send."""
+    def change_level(self, bus, delta):
+        """Change the level of a fader, mic pre, or bus send."""
+        print("changing %s bus %s by %s" % (self.osc_base_addr, bus, delta))
+        if bus == "fader" or bus == "gain":
+            self.fader = min(max(0.0, self.fader + (delta / 200)), 1.0)
+            return(self.osc_base_addr + '/' + bus,
+                    self.fader, self.fader)
         if self.sends is not None:
             bus_num = int(bus) - 1
-            print("   changing channel %s/%s by %s from %s %s" % \
-                (self.osc_base_addr, bus_num, delta, self.sends[bus_num], bus))
+#            print("   changing channel %s/%s by %s from %s %s" % \
+#                (self.osc_base_addr, bus_num, delta, self.sends[bus_num], bus))
             self.sends[bus_num] = \
                 min(max(0.0, self.sends[bus_num] + (delta / 200)), 1.0)
             return('%s/%s/level' %(self.osc_base_addr, bus),
                     self.sends[bus_num], self.sends[bus_num])
         return (None, None,"Off")
 
-    def set_bus_send(self, bus, value):
-        """Set the level of a bus send."""
+    def set_level(self, bus, value):
+        """Set the level of a fader, mic pre, or bus send."""
+        if bus == "fader" or bus == "gain":
+            self.fader = value
+            return(self.osc_base_addr + '/' + bus,
+                    self.fader, self.fader)
         if self.sends is not None:
             bus_num = int(bus) - 1
-            print("   setting channel %s/%s to %s from %s %s" % \
-                (self.osc_base_addr, bus_num, value, self.sends[bus_num], bus))
+#            print("   setting channel %s/%s to %s from %s %s" % \
+#                (self.osc_base_addr, bus_num, value, self.sends[bus_num], bus))
             self.sends[bus_num] = value
             return('%s/%s/level' %(self.osc_base_addr, bus),
                     self.sends[bus_num], self.sends[bus_num])
         return (None, None,"Off")
 
-    def get_bus_send(self, bus):
-        """Return the current send level."""
+    def get_level(self, bus):
+        """Return the current level of a fader, mic pre, or bus send."""
+        if bus == "fader" or bus == "gain":
+            return(self.fader)
         if self.sends is not None:
             bus_num = int(bus) - 1
             return(self.sends[bus_num])
@@ -121,14 +110,13 @@ class Channel:
 
 # the config json file specifies a number of layers each idendified by a name
 # within the layer there are currently two sections: encoders and buttons
-# there are 8 encoders per section of types: lengths
-encoder_def = {'fader': 3, 'gain': 2, 'level': 4, 'none': 1}
-encoder_types = set(encoder_def.keys())
+# there are 8 encoders per section with three parts: channel, send/fader/gain, button
+
 # fader, channel, [button]
 # gain, channel
 # level, channel, bus, [button]
 # There are 18 buttons per section to types: lengths
-button_def = {'quit': 3, 'none': 2, 'layer': 3, 'clip': 2, 'record': 2, 'mute': 4}
+button_def = {'quit': 3, 'none': 2, 'layer': 3, 'clip': 2, 'record': 2, 'mute': 3}
 button_types = set(button_def.keys())
 
 class Layer:
@@ -161,16 +149,14 @@ class Layer:
         if len(self.encoders) != 8:
             print("Layer %s does not contain 8 'encoder' definitions." % layer_name)
         for encoder in self.encoders:
-            if encoder[0] not in encoder_types:
-                print("Error: Layer %s contains an unknown 'encoder' %s, exiting." % \
-                     layer_name, encoder[0])
+            if len(encoder) != 3:
+                print("Error: Encoder %s of layer %s does not contain 3 elements, exiting." % \
+                    (encoder[0], layer_name))
                 exit()
-            if len(encoder) != encoder_def[encoder[0]]:
-                print("Error: Encoder %s of layer %s does not contain %d elements, exiting." % \
-                    (encoder[0], layer_name, encoder_def[encoder[0]]))
-                exit()
-            if encoder[0] != "none" and encoder[1] not in channels.keys():
-                channels[encoder[1]] = Channel(encoder[1])
+            if encoder[0] != "none" and encoder[0] not in channels.keys():
+                channels[encoder[0]] = Channel(encoder[0])
+            if encoder[2][0] == "mute" and encoder[2][1] not in channels.keys():
+                channels[encoder[2][1]] = Channel(encoder[2][1])
 
         # Process the buttons
         self.buttons = config_layer["buttons"]
@@ -194,36 +180,25 @@ class Layer:
 
     def encoder_turn(self, number, value):
         encoder = self.encoders[number]
-        if encoder[0] == "fader":
-            return(self.channels[encoder[1]].change_fader(value))
-        elif encoder[0] == "gain":
-            return(self.channels[encoder[1]].change_gain(value))
-        elif encoder[0] == "level":
-            return(self.channels[encoder[1]].change_bus_send(encoder[2], value))
+        if encoder[0] != "none":
+            return(self.channels[encoder[0]].change_level(encoder[1], value))
         return(None, None,"Off")
 
     def encoder_press(self, number):
         encoder = self.encoders[number]
-        if encoder[0] == "fader":
-            if encoder[2] != "none":
-                return(self.channels[encoder[1]].set_fader(float(encoder[2])))
-            else:
-                return(None, None, self.channels[encoder[1]].get_fader())
-        elif encoder[0] == "level":
-            if encoder[3] != "none":
-                return(self.channels[encoder[1]].set_bus_send(encoder[2], float(encoder[3])))
-            else:
-                return(None, None, self.channels[encoder[1]].get_bus_send(encoder[2]))
-        elif encoder[0] == "gain":
-            return(None, None, self.channels[encoder[1]].get_fader())
-        return(None, None,"Off")
+        if encoder[2][0] == "reset":
+            return(self.channels[encoder[0]].set_level(encoder[1], float(encoder[2][1])))
+        elif encoder[2][0] == "mute":
+            (address, param, LED) = self.channels[encoder[2][1]].toggle_mute(encoder[2][2])
+            return(address, param, self.channels[encoder[0]].get_level(encoder[1]))
+        if encoder[0] == "none":
+            return(None, None,"Off")
+        else:
+            return(None, None, self.channels[encoder[0]].get_level(encoder[1]))
 
     def encoder_state(self, number):
         encoder = self.encoders[number]
-        if encoder[0] == "level":
-            return(self.channels[encoder[1]].get_bus_send(encoder[2]))
-        else:
-            return(self.channels[encoder[1]].get_fader())
+        return(self.channels[encoder[0]].get_level(encoder[1]))
 
     def toggle_mute(self, number):
         button = self.buttons[number]
@@ -374,16 +349,6 @@ class MixerState:
 #        if self.screen_obj is not None:
 #            self.screen_obj.quit()
 
-    def toggle_mute_group(self, group):
-        if self.mute_groups[group].ch_on == 1:
-            self.mute_groups[group].ch_on = 0
-        else:
-            self.mute_groups[group].ch_on = 1
-        self.xair_client.send(
-            address=self.mute_groups[group].osc_base_addr, 
-            param=self.mute_groups[group].ch_on)
-        self.midi_controller.set_mute_grp(group, self.mute_groups[group].ch_on)
-
     def toggle_mpc(self):
         if self.mpd_playing:
             try:
@@ -464,10 +429,6 @@ class MixerState:
 
     def received_osc(self, addr, value):
         """Process an OSC input."""
-#        if addr.startswith('/config/mute'):
-#            group = int(addr[-1:]) - 1
-#            self.mute_groups[group].ch_on = value
-#            self.midi_controller.set_mute_grp(group, value)
 #        elif addr.startswith('/fx') and (addr.endswith('/par/01') or addr.endswith('/par/02')):
 #            if self.fx_slots[int(addr[4:5]) - 1] in self._DELAY_FX_IDS:
 #                self.midi_controller.update_tempo(value * 3)
@@ -490,17 +451,23 @@ class MixerState:
         elif two_element in self.channels.keys():
             prefix = two_element
         if prefix is not None:
-            if addr.endswith('/fader'):     # chanel fader level
+            if addr.startswith('/config/mute'):
+                number = '/'.join(addr.split('/')[-1])
+                self.channels[prefix].set_mute(number, value)
+                number = self.layers[self.current_layer].encoder_number(prefix)
+                if number != -1:
+                    self.midi_controller.set_channel_mute(number, value)
+            elif addr.endswith('/fader'):     # chanel fader level
                 if self.debug:
                     print('Channel %s level %f' % (addr, value))
-                self.channels[prefix].set_fader(value)
+                self.channels[prefix].set_level("fader", value)
                 number = self.layers[self.current_layer].encoder_number(prefix)
                 if number != -1:
                     self.midi_controller.set_ring(number, value)
             elif addr.endswith('/on'):      # channel enable
                 if self.debug:
                     print('%s unMute %d' % (addr, value))
-                self.channels[prefix].set_mute(value)
+                self.channels[prefix].set_mute("/on", value)
                 number = self.layers[self.current_layer].button_number(prefix)
                 if number != -1:
                     self.midi_controller.set_channel_mute(number, value)
@@ -508,14 +475,14 @@ class MixerState:
                 if self.debug:
                     print('%s level %f' % (addr, value))
                 bus = int(addr[-8:-6])
-                self.channels[prefix].set_bus_send(bus, value)
+                self.channels[prefix].set_level(bus, value)
                 number = self.layers[self.current_layer].encoder_number(prefix)
                 if number != -1:
                     self.midi_controller.set_ring(number, value)
             elif addr.endswith('/gain'):
                 if self.debug:
                     print('%s Gain level %f' % (addr, value))
-                self.channels[prefix].set_fader(value)
+                self.channels[prefix].set_level("gain", value)
                 number = self.layers[self.current_layer].encoder_number(prefix)
                 if number != -1:
                     self.midi_controller.set_ring(number, value)
@@ -597,7 +564,7 @@ class MixerState:
                 else:
                     self.active_bank = 3
                     fader = fader - 8
-                self.change_headamp(fader, -1) ## needs FIXME
+                self.change_level(fader, -1) ## needs FIXME
                 if self.debug:
                     print("Clipping Detected headamp changed to %s" %
                           self.banks[self.active_bank][fader].fader)
