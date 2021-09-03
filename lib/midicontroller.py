@@ -51,22 +51,20 @@ class MidiController:
     Handles communication with the MIDI surface.
     X-Touch Mini must be in MC mode!
 
-    LA/LB: Note 84/85
     Fader 1-8: CC16 - CC23, Note 32 - 39 on push
     Turn right: Values 1 - 10 (Increment)
     Turn left: Values 65 - 72 (Decrement)
     Buttons 1-8: Note 89, 90, 40, 41, 42, 43, 44, 45
     Buttons 9-16: Note 87, 88, 91, 92, 86, 93, 94, 95
+    Buttons LA/LB (aka 17/18): Note 84/85
     Master Fader: Pitch Wheel
     """
     MC_CHANNEL = 0
 
-#    MIDI_BUTTONS = [89, 90, 40, 41, 42, 43, 44, 45, 87, 88, 91, 92, 86, 93, 94, 95]
     MIDI_BUTTONS = [89, 90, 40, 41, 42, 43, 44, 45, 87, 88, 91, 92, 86, 93, 94, 95, 84, 85]
     MIDI_PUSH = [32, 33, 34, 35, 36, 37, 38, 39]
     MIDI_ENCODER = [16, 17, 18, 19, 20, 21, 22, 23]
     MIDI_RING = [48, 49, 50, 51, 52, 53, 54, 55]
-#    MIDI_LAYER = [84, 85]
 
     LED_OFF = 0
     LED_BLINK = 1
@@ -89,7 +87,6 @@ class MidiController:
                     print('Error: Can not open MIDI input port ' + name)
                     self.state.quit_called = True
                     self.state = None
-                    #exit()
                     return
                 break
 
@@ -102,7 +99,6 @@ class MidiController:
                     print('Error: Can not open MIDI input port ' + name)
                     self.state.quit_called = True
                     self.state = None
-                    #exit()
                     return
                 break
 
@@ -110,7 +106,6 @@ class MidiController:
             print('X-Touch Mini not found. Make sure device is connected!')
             self.state.quit_called = True
             self.cleanup_controller()
-            #exit()
             return
 
         for i in range(0, 18):
@@ -151,7 +146,9 @@ class MidiController:
                 time.sleep(1)
         except KeyboardInterrupt:
             if self.state is not None:
-                self.state.quit_called = True
+                self.state.shutdown()
+            else:
+                self.cleanup_controller()
             exit()
 
     def midi_listener(self):
@@ -167,24 +164,22 @@ class MidiController:
                         delta = msg.value
                         if delta > 64:
                             delta = (delta - 64) * -1
-                        if self.state.active_bus < 7: # one of the 7 AUX bus
-                            self.state.change_bus_send( \
-                                self.state.active_bus, self.MIDI_ENCODER.index(msg.control), delta)
-                        elif self.state.active_bus == 7: # preamp gain
-                            self.state.change_headamp(self.MIDI_ENCODER.index(msg.control), delta)
-                        else: # channels faders and output faders
-                            self.state.change_fader(self.MIDI_ENCODER.index(msg.control), delta)
+                        encoder_num = self.MIDI_ENCODER.index(msg.control)
+                        LED = self.state.encoder_turn(encoder_num, delta)
+                        self.set_ring(encoder_num, LED)
                     else:
                         print('Received unknown {}'.format(msg))
                 elif msg.type == 'note_on' and msg.velocity == 127:
                     if self.state.debug:
                         print('Note {} pushed'.format(msg.note))
                     if msg.note in self.MIDI_PUSH:
-                        self.knob_pushed(self.MIDI_PUSH.index(msg.note))
+                        encoder_num = self.MIDI_PUSH.index(msg.note)
+                        LED = self.state.encoder_press(encoder_num)
+                        self.set_ring(encoder_num, LED)
                     elif msg.note in self.MIDI_BUTTONS:
-                        self.button_pushed(self.MIDI_BUTTONS.index(msg.note))
-#                    elif msg.note in self.MIDI_LAYER:
-#                       self.change_layer(self.MIDI_LAYER.index(msg.note))
+                        button_num = self.MIDI_BUTTONS.index(msg.note)
+                        LED = self.state.button_press(button_num)
+                        self.set_channel_mute(button_num, LED)
                     else:
                         print('Received unknown {}'.format(msg))
                 elif msg.type == 'pitchwheel':
@@ -192,125 +187,43 @@ class MidiController:
                     if self.state.debug:
                         print('Wheel set to {}'.format(msg))
                     if msg.pitch > 8000:
-                        self.cleanup_controller()
                         if self.state is not None:
-                            self.state.quit_called = True
-                            if self.state.screen_obj is not None:
-                                self.state.screen_obj.quit()
+                            self.state.shutdown()
                         else:
-                            # we can't assert a quit signal so simply exit
-                            exit()
+                            self.cleanup_controller()
+                        exit()
                 elif msg.type != 'note_off' and msg.type != 'note_on':
                     print('Received unknown {}'.format(msg))
                 if self.state.quit_called:
-                    self.cleanup_controller()
+                    self.state.shutdown()
                     return
         except KeyboardInterrupt:
             if self.state is not None:
-                self.state.quit_called = True
-            self.cleanup_controller()
+                self.state.shutdown()
+            else:
+                self.cleanup_controller()
             exit()
 
-    def button_pushed(self, button):
-        "On button press, call the relevant function"
-        if self.state.debug:
-            print('Button {} pushed'.format(button))
-        if button < 8: # mute button pressed, upper row
-            if self.state.active_bus < 7: # sending to a bus
-                self.state.toggle_send_mute(button, self.state.active_bus)
-            # skip preamps as meaningless
-            elif self.state.active_bus > 7: # sending to a channel
-                self.state.toggle_channel_mute(button)
-        else: # bank select button
-            if(self.state.mac and (button in [10, 11, 12, 13, 14])):
-                self.mac_button(button)
-            else:
-                self.activate_bus(button - 8)
-
-    def mac_button(self, button):
-        "call a function for transport buttons on mac"
-        if button == 10:
-            os.system("""osascript -e 'tell application "music" to previous track'""")
-        elif button == 11:
-            os.system("""osascript -e 'tell application "music" to next track'""")
-        elif button == 12:
-            self.state.shutdown()
-            self.cleanup_controller()
-            exit()
-        elif button == 13:
-            os.system("""osascript -e 'tell application "music" to pause'""")
-        elif button == 14:
-            os.system("""osascript -e 'tell application "music" to play'""")
-
-    def knob_pushed(self, knob):
-        "On knob push reset the correct value"
-        # reset to unity gain
-        if self.state.active_bus < 7:
-            self.state.set_bus_send(self.state.active_bus, knob, 0.750000)
-        elif self.state.active_bus == 8:    # channel levels
-            if self.state.mac and knob in [4, 5, 7]:
-                self.state.set_fader(knob, 0.375367)
-            else:
-                self.state.set_fader(knob, 0.750000)
-        elif self.state.active_bus == 9:
-            if knob == 6:                   # USB Return
-                self.state.set_fader(knob, 0.750000)
-            else:                           # output levels -20 db
-                self.state.set_fader(knob, 0.375367)
-        #elif self.state.active_bus == 7:   # no obvious default for mic pre
-            #self.state.toggle_mpc()
-
-    def activate_bus(self, bus):
-        "chagne the active bus"
-        if self.state.debug:
-            print('Activating bus {}'.format(bus))
-        # set LEDs and layer
-        if self.state.active_bus == bus and bus != 9: # button 9 has only one layer
-            # switch layers for buttons with layers
-            if self.active_layer == 0:
-                self.set_button(bus + 8, self.LED_BLINK)
-                self.active_layer = 1
-            else:
-                self.set_button(bus + 8, self.LED_ON)
-                self.active_layer = 0
-        else: # switching to a different bus, or one that only has a single layer
-            self.set_button(self.state.active_bus + 8, self.LED_OFF)
-            self.set_button(bus + 8, self.LED_ON)
-            self.active_layer = 0
-        # set bus and bank
-        self.state.active_bus = bus
-        if bus == 7: # set mic pre banks
-            self.state.active_bank = self.active_layer + 2
-        elif bus == 9: # set outputs bank
-            self.state.active_bank = 4
-        else:
-            self.state.active_bank = self.active_layer
-
+    def activate_bus(self):
+        "refresh the lights for the current layer"
         # reset lights
         for i in range(0, 8):
-            if self.state.banks[self.state.active_bank][i] is not None:
-                if self.state.active_bus > 6: # send fader or preamp level
-                    self.set_channel_fader(i, self.state.banks[self.state.active_bank][i].fader)
-                    self.set_channel_mute(i, self.state.banks[self.state.active_bank][i].ch_on)
-                else:                         # send bus send
-                    if self.state.banks[self.state.active_bank][i].sends is not None:
-                        self.set_channel_fader(i, self.state.banks[ \
-                            self.state.active_bank][i].sends[self.state.active_bus])
-                        self.set_channel_mute(i, self.state.banks[ \
-                            self.state.active_bank][i].enables[self.state.active_bus])
-            else:                             # unassigned channel, disbale encoder and button
-                self.set_channel_fader(i, -1)
-                self.set_button(i, self.LED_OFF)
+            self.set_ring(i, self.state.get_encoder(i))
+            self.set_channel_mute(i, self.state.get_button(i))
+        for i in range(8, 18):
+            self.set_channel_mute(i, self.state.get_button(i))
 
-    def set_channel_mute(self, channel, ch_on):
+    def set_channel_mute(self, channel, LED):
         "Send the mute value to the button"
-        self.set_button(channel, self.LED_ON if ch_on == 0 else self.LED_OFF)
-
-    def set_channel_fader(self, channel, value):
-        "Send the fader value to the encoder ring"
-        self.set_ring(channel, value)
+        if LED == "On" or LED == 0: # LED is sense Negative for mute
+            self.set_button(channel, self.LED_ON)
+        elif LED == "Off" or LED == 1: # LED is sense Negative for mute
+            self.set_button(channel, self.LED_OFF)
+        else:
+            self.set_button(channel, self.LED_BLINK)
 
     def set_ring(self, ring, value):
+        "Send the fader value to the encoder ring"
         "Turn on the appropriate LEDs on the encoder ring."
         # 0 = off, 1-11 = single, 17-27 = pan, 33-43 = fan, 49-54 = spread
         # normalize value (0.0 - 1.0) to 0 - 11 range

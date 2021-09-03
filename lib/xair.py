@@ -118,8 +118,8 @@ class XAirClient:
                     if self.state.debug:
                         print("start auto level")
                     self.state.clip = False
-                    if self.state.screen_obj is not None:
-                        self.state.screen_obj.gpio_button[1].disable[0] = 1
+#                    if self.state.screen_obj is not None:
+#                        self.state.screen_obj.gpio_button[1].disable[0] = 1
                 time.sleep(self._REFRESH_TIMEOUT)
                 if self.state.quit_called:
                     self.quit()

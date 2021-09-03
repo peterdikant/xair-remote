@@ -31,7 +31,7 @@ if __name__ == '__main__':
     PARSER.add_argument('-l', '--levels', help='get levels from the mixer', action="store_true")
     PARSER.add_argument('-c', '--clip', help='enabling auto leveling to avoid clipping',
                         action="store_true")
-    PARSER.add_argument('-a', '--mac', help="use alternate mapping for mac", action="store_true")
+    PARSER.add_argument('-f', '--config_file', help="JSON formated config file", nargs=1)
     ARGS = PARSER.parse_args()
 
     STATE = MixerState(ARGS)
