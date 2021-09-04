@@ -1,0 +1,282 @@
+{
+    "LA0": {
+        "encoders": [
+            ["/ch/01/mix", "fader", ["mute", "/config/mute/1", "0"]],
+            ["/ch/02/mix", "fader", ["mute", "/config/mute/2", "0"]],
+            ["/ch/03/mix", "fader", ["mute", "/config/mute/3", "0"]],
+            ["/ch/04/mix", "fader", ["mute", "/config/mute/4", "0"]],
+            ["/ch/05/mix", "fader", ["none"]],
+            ["/ch/06/mix", "fader", ["none"]],
+            ["/ch/07/mix", "fader", ["none"]],
+            ["/ch/08/mix", "fader", ["subprocess", "mpc", ["play", "pause"]]]
+        ],
+        "buttons": [
+            ["mute", "/ch/01/mix", "/on"],
+            ["mute", "/ch/02/mix", "/on"],
+            ["mute", "/ch/03/mix", "/on"],
+            ["mute", "/ch/04/mix", "/on"],
+            ["mute", "/ch/05/mix", "/on"],
+            ["mute", "/ch/06/mix", "/on"],
+            ["mute", "/ch/07/mix", "/on"],
+            ["mute", "/ch/08/mix", "/on"],
+            ["mute", "/config/mute/4", ""],
+            ["tap", "tap"],
+            ["none", "Off"],
+            ["layer", "LA0", "0", "On"],
+            ["layer", "LA1", "0", "Off"],
+            ["layer", "LA2", "0", "Off"],
+            ["layer", "LA3", "0", "Off"],
+            ["layer", "LA4", "0", "Off"],
+            ["layer", "LA0", "0", "On"],
+            ["layer", "LB0", "10", "Off"]
+        ],
+        "fader": [
+            ["/lr/mix", "0"]
+        ]
+    },
+    "LA1": {
+        "encoders": [
+            ["/ch/09/mix", "fader", ["mute", "/config/mute/1", "0"]],
+            ["/ch/10/mix", "fader", ["mute", "/config/mute/2", "0"]],
+            ["/ch/11/mix", "fader", ["mute", "/config/mute/3", "0"]],
+            ["/ch/12/mix", "fader", ["mute", "/config/mute/4", "0"]],
+            ["/ch/13/mix", "fader", ["none"]],
+            ["/ch/14/mix", "fader", ["none"]],
+            ["/ch/15/mix", "fader", ["none"]],
+            ["/ch/16/mix", "fader", [["subprocess", "mpc", ["play", "pause"]]]]
+        ],
+        "buttons": [
+            ["mute", "/ch/09/mix", "/on"],
+            ["mute", "/ch/10/mix", "/on"],
+            ["mute", "/ch/11/mix", "/on"],
+            ["mute", "/ch/12/mix", "/on"],
+            ["mute", "/ch/13/mix", "/on"],
+            ["mute", "/ch/14/mix", "/on"],
+            ["mute", "/ch/15/mix", "/on"],
+            ["mute", "/ch/16/mix", "/on"],
+            ["mute", "/config/mute/4", ""],
+            ["tap", "tap"],
+            ["none", "Off"],
+            ["layer", "LA0", "0", "Off"],
+            ["layer", "LA1", "0", "On"],
+            ["layer", "LA2", "0", "Off"],
+            ["layer", "LA3", "0", "Off"],
+            ["layer", "LA4", "0", "Off"],
+            ["layer", "LA1", "0", "On"],
+            ["layer", "LB1", "10", "Off"]
+        ],
+        "fader": [
+            ["/lr/mix", "0"]
+        ]
+    },
+    "LA2": {
+        "encoders": [
+            ["/rtn/aux/mix", "fader", ["mute", "/config/mute/1", "0"]],
+            ["none", "", ["mute", "/config/mute/2", "0"]],
+            ["none", "", ["mute", "/config/mute/3", "0"]],
+            ["none", "", ["mute", "/config/mute/4", "0"]],
+            ["/dca/1", "fader", ["none"]],
+            ["/dca/2", "fader", ["none"]],
+            ["/dca/3", "fader", ["none"]],
+            ["/dca/4", "fader", [["subprocess", "mpc", ["play", "pause"]]]]
+        ],
+        "buttons": [
+            ["mute", "/rtn/aux/mix", "/on"],
+            ["none", "Off"],
+            ["none", "Off"],
+            ["none", "Off"],
+            ["mute", "/dca/1", "/on"],
+            ["mute", "/dca/2", "/on"],
+            ["mute", "/dca/3", "/on"],
+            ["mute", "/dca/4", "/on"],
+            ["mute", "/config/mute/4", ""],
+            ["tap", "tap"],
+            ["none", "Off"],
+            ["layer", "LA0", "0", "Off"],
+            ["layer", "LA1", "0", "Off"],
+            ["layer", "LA2", "0", "On"],
+            ["layer", "LA3", "0", "Off"],
+            ["layer", "LA4", "0", "Off"],
+            ["layer", "LA2", "0", "On"],
+            ["layer", "LB2", "10", "Off"]
+        ],
+        "fader": [
+            ["/lr/mix", "0"]
+        ]
+    },
+    "LA3": {
+        "encoders": [
+            ["/fxsend/1/mix", "fader", ["mute", "/config/mute/1", "0"]],
+            ["/fxsend/2/mix", "fader", ["mute", "/config/mute/2", "0"]],
+            ["/fxsend/3/mix", "fader", ["mute", "/config/mute/3", "0"]],
+            ["/fxsend/4/mix", "fader", ["mute", "/config/mute/4", "0"]],
+            ["/rtn/1/mix", "fader", ["none"]],
+            ["/rtn/2/mix", "fader", ["none"]],
+            ["/rtn/3/mix", "fader", ["none"]],
+            ["/rtn/4/mix", "fader", [["subprocess", "mpc", ["play", "pause"]]]]
+        ],
+        "buttons": [
+            ["mute", "/fxsend/1/mix", "/on"],
+            ["mute", "/fxsend/2/mix", "/on"],
+            ["mute", "/fxsend/3/mix", "/on"],
+            ["mute", "/fxsend/4/mix", "/on"],
+            ["mute", "/rtn/1/mix", "/on"],
+            ["mute", "/rtn/2/mix", "/on"],
+            ["mute", "/rtn/3/mix", "/on"],
+            ["mute", "/rtn/4/mix", "/on"],
+            ["mute", "/config/mute/4", ""],
+            ["tap", "tap"],
+            ["none", "Off"],
+            ["layer", "LA0", "0", "Off"],
+            ["layer", "LA1", "0", "Off"],
+            ["layer", "LA2", "0", "Off"],
+            ["layer", "LA3", "0", "On"],
+            ["layer", "LA4", "0", "Off"],
+            ["layer", "LA3", "0", "On"],
+            ["layer", "LB2", "10", "Off"]
+        ],
+        "fader": [
+            ["/lr/mix", "0"]
+        ]
+    },
+    "LA4": {
+        "encoders": [
+            ["/bus/1/mix", "fader", ["mute", "/config/mute/1", "0"]],
+            ["/bus/2/mix", "fader", ["mute", "/config/mute/2", "0"]],
+            ["/bus/3/mix", "fader", ["mute", "/config/mute/3", "0"]],
+            ["/bus/4/mix", "fader", ["mute", "/config/mute/4", "0"]],
+            ["/bus/5/mix", "fader", ["none"]],
+            ["/bus/6/mix", "fader", ["none"]],
+            ["none", "", [""]],
+            ["none", "", [["subprocess", "mpc", ["play", "pause"]]]]
+        ],
+        "buttons": [
+            ["mute", "/bus/1/mix", "/on"],
+            ["mute", "/bus/2/mix", "/on"],
+            ["mute", "/bus/3/mix", "/on"],
+            ["mute", "/bus/4/mix", "/on"],
+            ["mute", "/bus/5/mix", "/on"],
+            ["mute", "/bus/6/mix", "/on"],
+            ["none", "Off"],
+            ["none", "Off"],
+            ["mute", "/config/mute/4", ""],
+            ["tap", "tap"],
+            ["none", "Off"],
+            ["layer", "LA0", "0", "Off"],
+            ["layer", "LA1", "0", "Off"],
+            ["layer", "LA2", "0", "Off"],
+            ["layer", "LA3", "0", "Off"],
+            ["layer", "LA4", "0", "On"],
+            ["layer", "LA4", "0", "On"],
+            ["layer", "LB2", "10", "Off"]
+        ],
+        "fader": [
+            ["/lr/mix", "0"]
+        ]
+    },
+    "LB0": {
+        "encoders": [
+            ["/ch/01/mix", "fader", ["mute", "/config/mute/1", "0"]],
+            ["/ch/02/mix", "fader", ["mute", "/config/mute/2", "0"]],
+            ["/ch/03/mix", "fader", ["mute", "/config/mute/3", "0"]],
+            ["/ch/04/mix", "fader", ["mute", "/config/mute/4", "0"]],
+            ["/ch/05/mix", "fader", ["none"]],
+            ["/ch/06/mix", "fader", ["none"]],
+            ["/ch/07/mix", "fader", ["none"]],
+            ["/ch/08/mix", "fader", [["subprocess", "mpc", ["play", "pause"]]]]
+        ],
+        "buttons": [
+            ["send", "1", "send"],
+            ["send", "2", "send"],
+            ["send", "3", "send"],
+            ["send", "4", "send"],
+            ["send", "5", "send"],
+            ["send", "6", "send"],
+            ["send", "7", "send"],
+            ["send", "8", "send"],
+            ["mute", "/config/mute/4", ""],
+            ["tap", "tap"],
+            ["none", "Off"],
+            ["layer", "LB0", "10", "On"],
+            ["layer", "LB1", "10", "Off"],
+            ["layer", "LB2", "10", "Off"],
+            ["send", "9", "send"],
+            ["send", "10", "send"],
+            ["layer", "LA0", "0", "Off"],
+            ["layer", "LB0", "10", "On"]
+        ],
+        "fader": [
+            ["/lr/mix", "0"]
+        ]
+    },
+    "LB1": {
+        "encoders": [
+            ["/ch/09/mix", "fader", ["mute", "/config/mute/1", "0"]],
+            ["/ch/10/mix", "fader", ["mute", "/config/mute/2", "0"]],
+            ["/ch/11/mix", "fader", ["mute", "/config/mute/3", "0"]],
+            ["/ch/12/mix", "fader", ["mute", "/config/mute/4", "0"]],
+            ["/ch/13/mix", "fader", ["none"]],
+            ["/ch/14/mix", "fader", ["none"]],
+            ["/ch/15/mix", "fader", ["none"]],
+            ["/ch/16/mix", "fader", [["subprocess", "mpc", ["play", "pause"]]]]
+        ],
+        "buttons": [
+            ["send", "1", "send"],
+            ["send", "2", "send"],
+            ["send", "3", "send"],
+            ["send", "4", "send"],
+            ["send", "5", "send"],
+            ["send", "6", "send"],
+            ["send", "7", "send"],
+            ["send", "8", "send"],
+            ["mute", "/config/mute/4", ""],
+            ["tap", "tap"],
+            ["none", "Off"],
+            ["layer", "LB0", "10", "Off"],
+            ["layer", "LB1", "10", "On"],
+            ["layer", "LB2", "10", "Off"],
+            ["send", "9", "send"],
+            ["send", "10", "send"],
+            ["layer", "LA1", "0", "Off"],
+            ["layer", "LB1", "10", "On"]
+        ],
+        "fader": [
+            ["/lr/mix", "0"]
+        ]
+    },
+    "LB2": {
+        "encoders": [
+            ["/rtn/aux/mix", "fader", ["mute", "/config/mute/1", "0"]],
+            ["none", "", ["mute", "/config/mute/2", "0"]],
+            ["none", "", ["mute", "/config/mute/3", "0"]],
+            ["none", "", ["mute", "/config/mute/4", "0"]],
+            ["/dca/1", "fader", ["none"]],
+            ["/dca/2", "fader", ["none"]],
+            ["/dca/3", "fader", ["none"]],
+            ["/dca/4", "fader", [["subprocess", "mpc", ["play", "pause"]]]]
+        ],
+        "buttons": [
+            ["send", "1", "send"],
+            ["send", "2", "send"],
+            ["send", "3", "send"],
+            ["send", "4", "send"],
+            ["send", "5", "send"],
+            ["send", "6", "send"],
+            ["send", "7", "send"],
+            ["send", "8", "send"],
+            ["mute", "/config/mute/4", ""],
+            ["tap", "tap"],
+            ["none", "Off"],
+            ["layer", "LB0", "10", "Off"],
+            ["layer", "LB1", "10", "Off"],
+            ["layer", "LB2", "10", "On"],
+            ["send", "9", "send"],
+            ["send", "10", "send"],
+            ["layer", "LA2", "0", "Off"],
+            ["layer", "LB2", "10", "On"]
+        ],
+        "fader": [
+            ["/lr/mix", "0"]
+        ]
+    }
+}
