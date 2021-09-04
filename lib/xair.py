@@ -33,7 +33,7 @@ class XAirClient:
     Handles the communication with the X-Air mixer via the OSC protocol
     """
     _CONNECT_TIMEOUT = 0.5
-    _WAIT_TIME = 0.02
+    _WAIT_TIME = 0.002
     _REFRESH_TIMEOUT = 5
 
     XAIR_PORT = 10024
@@ -89,12 +89,14 @@ class XAirClient:
             return
         #print 'OSCReceived("%s", %s, %s)' % (addr, tags, data)
         if addr.endswith('/fader') or addr.endswith('/on') or addr.endswith('/level') or \
-                addr.startswith('/config/mute') or addr.endswith('/gain'):
+                addr.startswith('/config/mute') or addr.endswith('/gain') or addr.startswith('/fx/'):
             self.state.received_osc(addr, data[0])
         elif addr == '/xinfo':
             self.info_response = data[:]
         elif addr.startswith('/meters'):
             self.state.received_meters(addr, data)
+        elif addr.startswith('/-'):
+            pass
         else:         #if self.state.debug and addr.start:
             print('OSCReceived("%s", %s)' % (addr, data))
 
@@ -110,11 +112,11 @@ class XAirClient:
         try:
             while not self.state.quit_called and self.server is not None:
                 self.server.send_message("/xremotenfb", None)
-                if self.state.levels:
+                if self.state.levels or self.state.clip:
                     # using input levels, as these match the headamps when channels are remapped
-                    time.sleep(0.002)
+                    time.sleep(self._REFRESH_TIMEOUT)
                     self.send(address="/meters", param=["/meters/2"])
-                if self.state.clip: # seems to crash if clipping protection runs for too long
+                if self.state.clip: # seems to crash if clipping protection runs for more than one cycle
                     if self.state.debug:
                         print("start auto level")
                     self.state.clip = False

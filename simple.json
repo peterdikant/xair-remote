@@ -27,8 +27,11 @@
             ["mute", "/ch/14/mix", "/on"],
             ["mute", "/ch/15/mix", "/on"],
             ["mute", "/ch/16/mix", "/on"],
-            ["layer", "A", "On"],
-            ["layer", "B", "Off"]
+            ["layer", "A", "0", "On"],
+            ["layer", "B", "0", "Off"]
+        ],
+        "fader": [
+            ["none", "0"]
         ]
     },
     "B": {
@@ -59,8 +62,11 @@
             ["mute", "/ch/14/mix", "/on"],
             ["mute", "/ch/15/mix", "/on"],
             ["mute", "/ch/16/mix", "/on"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "On"]
+            ["layer", "A", "0", "Off"],
+            ["layer", "B", "0", "On"]
+        ],
+        "fader": [
+            ["none", "0"]
         ]
     }
 }

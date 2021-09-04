@@ -19,16 +19,19 @@
             ["mute", "/ch/06/mix", "/on"],
             ["mute", "/ch/07/mix", "/on"],
             ["mute", "/ch/08/mix", "/on"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "Aprime", "On"],
-            ["layer", "B", "Off"]
+            ["send", "1", "send"],
+            ["send", "2", "send"],
+            ["send", "3", "send"],
+            ["send", "4", "send"],
+            ["send", "5", "send"],
+            ["send", "6", "send"],
+            ["send", "7", "send"],
+            ["layer", "Gain", "0", "Off"],
+            ["layer", "Aprime", "7", "On"],
+            ["layer", "B", "0", "Off"]
+        ],
+        "fader": [
+            ["quit", "0"]
         ]
     },
     "Aprime": {
@@ -51,28 +54,31 @@
             ["mute", "/ch/14/mix", "/on"],
             ["mute", "/ch/15/mix", "/on"],
             ["mute", "/ch/16/mix", "/on"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Blink"],
-            ["layer", "B", "Off"]
+            ["send", "1", "send"],
+            ["send", "2", "send"],
+            ["send", "3", "send"],
+            ["send", "4", "send"],
+            ["send", "5", "send"],
+            ["send", "6", "send"],
+            ["send", "7", "send"],
+            ["layer", "Gain", "0", "Off"],
+            ["layer", "A", "7", "Blink"],
+            ["layer", "B", "0", "Off"]
+        ],
+        "fader": [
+            ["quit", "0"]
         ]
     },
     "B": {
         "encoders": [
-            ["/bus/1/mix", "fader", ["reset", "0.375367"]],
-            ["/bus/2/mix", "fader", ["reset", "0.375367"]],
-            ["/bus/3/mix", "fader", ["reset", "0.375367"]],
-            ["/bus/4/mix", "fader", ["reset", "0.375367"]],
-            ["/bus/5/mix", "fader", ["reset", "0.375367"]],
-            ["/bus/6/mix", "fader", ["reset", "0.375367"]],
-            ["/rtn/aux/mix", "fader", ["reset", "0.750000"]],
-            ["/lr/mix", "fader", ["reset", "0.375367"]]
+            ["/bus/1/mix", "0", ["reset", "0.375367"]],
+            ["/bus/2/mix", "0", ["reset", "0.375367"]],
+            ["/bus/3/mix", "0", ["reset", "0.375367"]],
+            ["/bus/4/mix", "0", ["reset", "0.375367"]],
+            ["/bus/5/mix", "0", ["reset", "0.375367"]],
+            ["/bus/6/mix", "0", ["reset", "0.375367"]],
+            ["/rtn/aux/mix", "0", ["reset", "0.750000"]],
+            ["/lr/mix", "0", ["reset", "0.375367"]]
         ],
         "buttons": [
             ["mute", "/bus/1/mix", "/on"],
@@ -83,464 +89,19 @@
             ["mute", "/bus/6/mix", "/on"],
             ["mute", "/rtn/aux/mix", "/on"],
             ["mute", "/lr/mix", "/on"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "On"]
-        ]
-    },
-    "1": {
-        "encoders": [
-            ["/ch/01/mix", "01", ["reset", "0.750000"]],
-            ["/ch/02/mix", "01", ["reset", "0.750000"]],
-            ["/ch/03/mix", "01", ["reset", "0.750000"]],
-            ["/ch/04/mix", "01", ["reset", "0.750000"]],
-            ["/ch/05/mix", "01", ["reset", "0.750000"]],
-            ["/ch/06/mix", "01", ["reset", "0.750000"]],
-            ["/ch/07/mix", "01", ["reset", "0.750000"]],
-            ["/ch/08/mix", "01", ["reset", "0.750000"]]
+            ["none", "1"],
+            ["none", "2"],
+            ["none", "3"],
+            ["none", "4"],
+            ["none", "5"],
+            ["none", "6"],
+            ["none", "7"],
+            ["layer", "Gain", "0", "Off"],
+            ["layer", "A", "7", "Off"],
+            ["layer", "B", "0", "On"]
         ],
-        "buttons": [
-            ["mute", "/ch/01/mix", "01"],
-            ["mute", "/ch/02/mix", "01"],
-            ["mute", "/ch/03/mix", "01"],
-            ["mute", "/ch/04/mix", "01"],
-            ["mute", "/ch/05/mix", "01"],
-            ["mute", "/ch/06/mix", "01"],
-            ["mute", "/ch/07/mix", "01"],
-            ["mute", "/ch/08/mix", "01"],
-            ["layer", "1prime", "On"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "1prime": {
-        "encoders": [
-            ["/ch/09/mix", "01", ["reset", "0.750000"]],
-            ["/ch/10/mix", "01", ["reset", "0.750000"]],
-            ["/ch/11/mix", "01", ["reset", "0.750000"]],
-            ["/ch/12/mix", "01", ["reset", "0.750000"]],
-            ["/ch/13/mix", "01", ["reset", "0.750000"]],
-            ["/ch/14/mix", "01", ["reset", "0.750000"]],
-            ["/ch/15/mix", "01", ["reset", "0.750000"]],
-            ["/ch/16/mix", "01", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/09/mix", "01"],
-            ["mute", "/ch/10/mix", "01"],
-            ["mute", "/ch/11/mix", "01"],
-            ["mute", "/ch/12/mix", "01"],
-            ["mute", "/ch/13/mix", "01"],
-            ["mute", "/ch/14/mix", "01"],
-            ["mute", "/ch/15/mix", "01"],
-            ["mute", "/ch/16/mix", "01"],
-            ["layer", "1", "Blink"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "2": {
-        "encoders": [
-            ["/ch/01/mix", "02", ["reset", "0.750000"]],
-            ["/ch/02/mix", "02", ["reset", "0.750000"]],
-            ["/ch/03/mix", "02", ["reset", "0.750000"]],
-            ["/ch/04/mix", "02", ["reset", "0.750000"]],
-            ["/ch/05/mix", "02", ["reset", "0.750000"]],
-            ["/ch/06/mix", "02", ["reset", "0.750000"]],
-            ["/ch/07/mix", "02", ["reset", "0.750000"]],
-            ["/ch/08/mix", "02", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/01/mix", "02"],
-            ["mute", "/ch/02/mix", "02"],
-            ["mute", "/ch/03/mix", "02"],
-            ["mute", "/ch/04/mix", "02"],
-            ["mute", "/ch/05/mix", "02"],
-            ["mute", "/ch/06/mix", "02"],
-            ["mute", "/ch/07/mix", "02"],
-            ["mute", "/ch/08/mix", "02"],
-            ["layer", "1", "Off"],
-            ["layer", "2prime", "On"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "2prime": {
-        "encoders": [
-            ["/ch/09/mix", "02", ["reset", "0.750000"]],
-            ["/ch/10/mix", "02", ["reset", "0.750000"]],
-            ["/ch/11/mix", "02", ["reset", "0.750000"]],
-            ["/ch/12/mix", "02", ["reset", "0.750000"]],
-            ["/ch/13/mix", "02", ["reset", "0.750000"]],
-            ["/ch/14/mix", "02", ["reset", "0.750000"]],
-            ["/ch/15/mix", "02", ["reset", "0.750000"]],
-            ["/ch/16/mix", "02", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/09/mix", "02"],
-            ["mute", "/ch/10/mix", "02"],
-            ["mute", "/ch/11/mix", "02"],
-            ["mute", "/ch/12/mix", "02"],
-            ["mute", "/ch/13/mix", "02"],
-            ["mute", "/ch/14/mix", "02"],
-            ["mute", "/ch/15/mix", "02"],
-            ["mute", "/ch/16/mix", "02"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Blink"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "3": {
-        "encoders": [
-            ["/ch/01/mix", "03", ["reset", "0.750000"]],
-            ["/ch/02/mix", "03", ["reset", "0.750000"]],
-            ["/ch/03/mix", "03", ["reset", "0.750000"]],
-            ["/ch/04/mix", "03", ["reset", "0.750000"]],
-            ["/ch/05/mix", "03", ["reset", "0.750000"]],
-            ["/ch/06/mix", "03", ["reset", "0.750000"]],
-            ["/ch/07/mix", "03", ["reset", "0.750000"]],
-            ["/ch/08/mix", "03", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/01/mix", "03"],
-            ["mute", "/ch/02/mix", "03"],
-            ["mute", "/ch/03/mix", "03"],
-            ["mute", "/ch/04/mix", "03"],
-            ["mute", "/ch/05/mix", "03"],
-            ["mute", "/ch/06/mix", "03"],
-            ["mute", "/ch/07/mix", "03"],
-            ["mute", "/ch/08/mix", "03"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3prime", "On"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "3prime": {
-        "encoders": [
-            ["/ch/09/mix", "03", ["reset", "0.750000"]],
-            ["/ch/10/mix", "03", ["reset", "0.750000"]],
-            ["/ch/11/mix", "03", ["reset", "0.750000"]],
-            ["/ch/12/mix", "03", ["reset", "0.750000"]],
-            ["/ch/13/mix", "03", ["reset", "0.750000"]],
-            ["/ch/14/mix", "03", ["reset", "0.750000"]],
-            ["/ch/15/mix", "03", ["reset", "0.750000"]],
-            ["/ch/16/mix", "03", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/09/mix", "03"],
-            ["mute", "/ch/10/mix", "03"],
-            ["mute", "/ch/11/mix", "03"],
-            ["mute", "/ch/12/mix", "03"],
-            ["mute", "/ch/13/mix", "03"],
-            ["mute", "/ch/14/mix", "03"],
-            ["mute", "/ch/15/mix", "03"],
-            ["mute", "/ch/16/mix", "03"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Blink"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "4": {
-        "encoders": [
-            ["/ch/01/mix", "04", ["reset", "0.750000"]],
-            ["/ch/02/mix", "04", ["reset", "0.750000"]],
-            ["/ch/03/mix", "04", ["reset", "0.750000"]],
-            ["/ch/04/mix", "04", ["reset", "0.750000"]],
-            ["/ch/05/mix", "04", ["reset", "0.750000"]],
-            ["/ch/06/mix", "04", ["reset", "0.750000"]],
-            ["/ch/07/mix", "04", ["reset", "0.750000"]],
-            ["/ch/08/mix", "04", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/01/mix", "04"],
-            ["mute", "/ch/02/mix", "04"],
-            ["mute", "/ch/03/mix", "04"],
-            ["mute", "/ch/04/mix", "04"],
-            ["mute", "/ch/05/mix", "04"],
-            ["mute", "/ch/06/mix", "04"],
-            ["mute", "/ch/07/mix", "04"],
-            ["mute", "/ch/08/mix", "04"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4prime", "On"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "4prime": {
-        "encoders": [
-            ["/ch/09/mix", "04", ["reset", "0.750000"]],
-            ["/ch/10/mix", "04", ["reset", "0.750000"]],
-            ["/ch/11/mix", "04", ["reset", "0.750000"]],
-            ["/ch/12/mix", "04", ["reset", "0.750000"]],
-            ["/ch/13/mix", "04", ["reset", "0.750000"]],
-            ["/ch/14/mix", "04", ["reset", "0.750000"]],
-            ["/ch/15/mix", "04", ["reset", "0.750000"]],
-            ["/ch/16/mix", "04", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/09/mix", "04"],
-            ["mute", "/ch/10/mix", "04"],
-            ["mute", "/ch/11/mix", "04"],
-            ["mute", "/ch/12/mix", "04"],
-            ["mute", "/ch/13/mix", "04"],
-            ["mute", "/ch/14/mix", "04"],
-            ["mute", "/ch/15/mix", "04"],
-            ["mute", "/ch/16/mix", "04"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Blink"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "5": {
-        "encoders": [
-            ["/ch/01/mix", "05", ["reset", "0.750000"]],
-            ["/ch/02/mix", "05", ["reset", "0.750000"]],
-            ["/ch/03/mix", "05", ["reset", "0.750000"]],
-            ["/ch/04/mix", "05", ["reset", "0.750000"]],
-            ["/ch/05/mix", "05", ["reset", "0.750000"]],
-            ["/ch/06/mix", "05", ["reset", "0.750000"]],
-            ["/ch/07/mix", "05", ["reset", "0.750000"]],
-            ["/ch/08/mix", "05", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/01/mix", "05"],
-            ["mute", "/ch/02/mix", "05"],
-            ["mute", "/ch/03/mix", "05"],
-            ["mute", "/ch/04/mix", "05"],
-            ["mute", "/ch/05/mix", "05"],
-            ["mute", "/ch/06/mix", "05"],
-            ["mute", "/ch/07/mix", "05"],
-            ["mute", "/ch/08/mix", "05"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5prime", "On"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "5prime": {
-        "encoders": [
-            ["/ch/09/mix", "05", ["reset", "0.750000"]],
-            ["/ch/10/mix", "05", ["reset", "0.750000"]],
-            ["/ch/11/mix", "05", ["reset", "0.750000"]],
-            ["/ch/12/mix", "05", ["reset", "0.750000"]],
-            ["/ch/13/mix", "05", ["reset", "0.750000"]],
-            ["/ch/14/mix", "05", ["reset", "0.750000"]],
-            ["/ch/15/mix", "05", ["reset", "0.750000"]],
-            ["/ch/16/mix", "05", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/09/mix", "05"],
-            ["mute", "/ch/10/mix", "05"],
-            ["mute", "/ch/11/mix", "05"],
-            ["mute", "/ch/12/mix", "05"],
-            ["mute", "/ch/13/mix", "05"],
-            ["mute", "/ch/14/mix", "05"],
-            ["mute", "/ch/15/mix", "05"],
-            ["mute", "/ch/16/mix", "05"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "On"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "6": {
-        "encoders": [
-            ["/ch/01/mix", "06", ["reset", "0.750000"]],
-            ["/ch/02/mix", "06", ["reset", "0.750000"]],
-            ["/ch/03/mix", "06", ["reset", "0.750000"]],
-            ["/ch/04/mix", "06", ["reset", "0.750000"]],
-            ["/ch/05/mix", "06", ["reset", "0.750000"]],
-            ["/ch/06/mix", "06", ["reset", "0.750000"]],
-            ["/ch/07/mix", "06", ["reset", "0.750000"]],
-            ["/ch/08/mix", "06", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/01/mix", "06"],
-            ["mute", "/ch/02/mix", "06"],
-            ["mute", "/ch/03/mix", "06"],
-            ["mute", "/ch/04/mix", "06"],
-            ["mute", "/ch/05/mix", "06"],
-            ["mute", "/ch/06/mix", "06"],
-            ["mute", "/ch/07/mix", "06"],
-            ["mute", "/ch/08/mix", "06"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6prime", "On"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "6prime": {
-        "encoders": [
-            ["/ch/09/mix", "06", ["reset", "0.750000"]],
-            ["/ch/10/mix", "06", ["reset", "0.750000"]],
-            ["/ch/11/mix", "06", ["reset", "0.750000"]],
-            ["/ch/12/mix", "06", ["reset", "0.750000"]],
-            ["/ch/13/mix", "06", ["reset", "0.750000"]],
-            ["/ch/14/mix", "06", ["reset", "0.750000"]],
-            ["/ch/15/mix", "06", ["reset", "0.750000"]],
-            ["/ch/16/mix", "06", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/09/mix", "06"],
-            ["mute", "/ch/10/mix", "06"],
-            ["mute", "/ch/11/mix", "06"],
-            ["mute", "/ch/12/mix", "06"],
-            ["mute", "/ch/13/mix", "06"],
-            ["mute", "/ch/14/mix", "06"],
-            ["mute", "/ch/15/mix", "06"],
-            ["mute", "/ch/16/mix", "06"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Blink"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "FX1": {
-        "encoders": [
-            ["/ch/01/mix", "07", ["reset", "0.750000"]],
-            ["/ch/02/mix", "07", ["reset", "0.750000"]],
-            ["/ch/03/mix", "07", ["reset", "0.750000"]],
-            ["/ch/04/mix", "07", ["reset", "0.750000"]],
-            ["/ch/05/mix", "07", ["reset", "0.750000"]],
-            ["/ch/06/mix", "07", ["reset", "0.750000"]],
-            ["/ch/07/mix", "07", ["reset", "0.750000"]],
-            ["/ch/08/mix", "07", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/01/mix", "07"],
-            ["mute", "/ch/02/mix", "07"],
-            ["mute", "/ch/03/mix", "07"],
-            ["mute", "/ch/04/mix", "07"],
-            ["mute", "/ch/05/mix", "07"],
-            ["mute", "/ch/06/mix", "07"],
-            ["mute", "/ch/07/mix", "07"],
-            ["mute", "/ch/08/mix", "07"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1prime", "On"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
-        ]
-    },
-    "FX1prime": {
-        "encoders": [
-            ["/ch/09/mix", "07", ["reset", "0.750000"]],
-            ["/ch/10/mix", "07", ["reset", "0.750000"]],
-            ["/ch/11/mix", "07", ["reset", "0.750000"]],
-            ["/ch/12/mix", "07", ["reset", "0.750000"]],
-            ["/ch/13/mix", "07", ["reset", "0.750000"]],
-            ["/ch/14/mix", "07", ["reset", "0.750000"]],
-            ["/ch/15/mix", "07", ["reset", "0.750000"]],
-            ["/ch/16/mix", "07", ["reset", "0.750000"]]
-        ],
-        "buttons": [
-            ["mute", "/ch/09/mix", "07"],
-            ["mute", "/ch/10/mix", "07"],
-            ["mute", "/ch/11/mix", "07"],
-            ["mute", "/ch/12/mix", "07"],
-            ["mute", "/ch/13/mix", "07"],
-            ["mute", "/ch/14/mix", "07"],
-            ["mute", "/ch/15/mix", "07"],
-            ["mute", "/ch/16/mix", "07"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Blink"],
-            ["layer", "Gain", "Off"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
+        "fader": [
+            ["quit", "0"]
         ]
     },
     "Gain": {
@@ -562,17 +123,20 @@
             ["none", "Off"],
             ["none", "Off"],
             ["clip", "State"],
-            ["record", "State"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gainprime", "On"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
+            ["none", "State"],
+            ["none", "1"],
+            ["none", "2"],
+            ["none", "3"],
+            ["none", "4"],
+            ["none", "5"],
+            ["none", "6"],
+            ["none", "7"],
+            ["layer", "Gainprime", "0", "On"],
+            ["layer", "A", "0", "Off"],
+            ["layer", "B", "0", "Off"]
+        ],
+        "fader": [
+            ["quit", "0"]
         ]
     },
     "Gainprime": {
@@ -594,17 +158,20 @@
             ["none", "Off"],
             ["none", "Off"],
             ["clip", "State"],
-            ["record", "State"],
-            ["layer", "1", "Off"],
-            ["layer", "2", "Off"],
-            ["layer", "3", "Off"],
-            ["layer", "4", "Off"],
-            ["layer", "5", "Off"],
-            ["layer", "6", "Off"],
-            ["layer", "FX1", "Off"],
-            ["layer", "Gain", "Blink"],
-            ["layer", "A", "Off"],
-            ["layer", "B", "Off"]
+            ["none", "State"],
+            ["none", "1"],
+            ["none", "2"],
+            ["none", "3"],
+            ["none", "4"],
+            ["none", "5"],
+            ["none", "6"],
+            ["none", "7"],
+            ["layer", "Gain", "0", "Blink"],
+            ["layer", "A", "0", "Off"],
+            ["layer", "B", "0", "Off"]
+        ],
+        "fader": [
+            ["quit", "0"]
         ]
     }
 }

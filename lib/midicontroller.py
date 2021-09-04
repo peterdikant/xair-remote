@@ -9,18 +9,19 @@ class TempoDetector:
     Detect song tempo via a tap button
     """
     _MAX_TAP_DURATION = 3.0
-    
     current_tempo = 0.5
-    
-    def __init__(self, midi_controller):
-        self.midi_controller = midi_controller
+    number = -1
+
+    def __init__(self, state):
+        self.state = state
+        self.midi_controller = state.midi_controller
         self.last_tap = 0
         self.tap_num = 0
         self.tap_delta = 0
         worker = threading.Thread(target = self.blink)
         worker.daemon = True
         worker.start()
-    
+
     def tap(self):
         current_time = time.time()
         if current_time - self.last_tap > self._MAX_TAP_DURATION:
@@ -32,18 +33,21 @@ class TempoDetector:
             self.tap_delta += current_time - self.last_tap
             if self.tap_num > 0:
                 # Update tempo in mixer after at least 2 taps
-                self.midi_controller.update_tempo(self.tap_delta / self.tap_num, True)
+                self.state.update_tempo(self.tap_delta / self.tap_num)
                 self.current_tempo = self.tap_delta / self.tap_num
         self.last_tap = current_time
-        
+
     def blink(self):
         try:
-            while True:
-                self.midi_controller.tempo_led(True)
-                time.sleep(self.current_tempo * 0.2)
-                self.midi_controller.tempo_led(False)
-                time.sleep(self.current_tempo * 0.8)
+            while self.state is not None and self.state.quit_called != True:
+                if self.number != -1:
+                    self.midi_controller.set_channel_mute(self.number, "On")
+                    time.sleep(self.current_tempo * 0.2)
+                    self.midi_controller.set_channel_mute(self.number, "Off")
+                    time.sleep(self.current_tempo * 0.8)
         except KeyboardInterrupt:
+            if self.state is not None:
+                self.state.shutdown()
             exit()
 
 class MidiController:
@@ -183,15 +187,7 @@ class MidiController:
                     else:
                         print('Received unknown {}'.format(msg))
                 elif msg.type == 'pitchwheel':
-                    value = (msg.pitch + 8192) / 16384
-                    if self.state.debug:
-                        print('Wheel set to {}'.format(msg))
-                    if msg.pitch > 8000:
-                        if self.state is not None:
-                            self.state.shutdown()
-                        else:
-                            self.cleanup_controller()
-                        exit()
+                    self.state.fader_move(msg)
                 elif msg.type != 'note_off' and msg.type != 'note_on':
                     print('Received unknown {}'.format(msg))
                 if self.state.quit_called:
@@ -219,6 +215,8 @@ class MidiController:
             self.set_button(channel, self.LED_ON)
         elif LED == "Off" or LED == 1: # LED is sense Negative for mute
             self.set_button(channel, self.LED_OFF)
+        elif LED == "none":
+            return
         else:
             self.set_button(channel, self.LED_BLINK)
 
