@@ -1,4 +1,9 @@
 "This modules managed communications with the XAir mixer"
+# part of xair-remote.py
+# Copyright (c) 2018, 2021 Peter Dikant
+# Additions Copyright (c) 2021 Ross Dickson
+# Some rights reserved. See LICENSE.
+
 import time
 import threading
 import socket

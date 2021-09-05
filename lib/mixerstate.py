@@ -1,6 +1,8 @@
-"""
-This module holds the mixer state of the X-Air device
-"""
+"This module holds the mixer state of the X-Air device"
+# part of xair-remote.py
+# Copyright (c) 2018, 2021 Peter Dikant
+# Additions Copyright (c) 2021 Ross Dickson
+# Some rights reserved. See LICENSE.
 
 import time
 import subprocess
@@ -311,7 +313,7 @@ class MixerState:
         self.levels = args.levels
 
         # initialize internal data structures
-        config_json = "simple.json"
+        config_json = "peterdikant.json"
         if args.config_file is not None:
             config_json = args.config_file[0]
         with open(config_json) as config_file:
