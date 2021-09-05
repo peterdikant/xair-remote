@@ -111,7 +111,7 @@ class SubProc:
 # gain, channel
 # level, channel, bus, [button]
 # There are 18 buttons per section to types: lengths
-button_def = {'quit': 3, 'none': 2, 'layer': 4, 'clip': 2, 'mute': 3, 'tap': 2, "send": 3}
+button_def = {'quit': 2, 'none': 2, 'layer': 4, 'clip': 2, 'mute': 2, 'tap': 2, "send": 2}
 button_types = set(button_def.keys())
 
 class Layer:
@@ -137,16 +137,16 @@ class Layer:
         if len(self.encoders) != 8:
             print("Layer %s does not contain 8 'encoder' definitions." % layer_name)
         for encoder in self.encoders:
-            if len(encoder) != 3:
-                print("Error: Encoder %s of layer %s does not contain 3 elements, exiting." % \
+            if len(encoder) != 2:
+                print("Error: Encoder %s of layer %s does not contain 2 elements, exiting." % \
                     (encoder[0], layer_name))
                 exit()
             if encoder[0] != "none" and encoder[0] not in channels.keys():
                 channels[encoder[0]] = Channel(encoder[0])
-            if encoder[2][0] == "mute" and encoder[2][1] not in channels.keys():
-                channels[encoder[2][1]] = Channel(encoder[2][1])
-            elif encoder[2][0] == "subprocess" and encoder[2][1] not in proc_list.keys():
-                proc_list[encoder[2][1]] = SubProc(encoder[2][0], encoder[2][1], encoder[2][2])
+            if encoder[1][0] == "mute" and encoder[1][1] not in channels.keys():
+                channels[encoder[1][1]] = Channel(encoder[1][1])
+            elif encoder[1][0] == "subprocess" and encoder[1][1] not in proc_list.keys():
+                proc_list[encoder[1][1]] = SubProc(encoder[1][0], encoder[1][1], encoder[1][2])
 
         # Process the buttons
         self.buttons = config_layer["buttons"]
@@ -189,13 +189,13 @@ class Layer:
 
     def encoder_press(self, number):
         encoder = self.encoders[number]
-        if encoder[2][0] == "reset":
-            return(self.channels[encoder[0]].set_level(self.active_bus, float(encoder[2][1])))
-        elif encoder[2][0] == "mute":
-            (address, param, LED) = self.channels[encoder[2][1]].toggle_mute(int(encoder[2][2]))
+        if encoder[1][0] == "reset":
+            return(self.channels[encoder[0]].set_level(self.active_bus, float(encoder[1][1])))
+        elif encoder[1][0] == "mute":
+            (address, param, LED) = self.channels[encoder[1][1]].toggle_mute(int(encoder[1][2]))
             return(address, param, self.channels[encoder[0]].get_level(self.active_bus))
-        elif encoder[2][0] == "subprocess":
-            self.proc_list[encoder[2][1]].toggle()
+        elif encoder[1][0] == "subprocess":
+            self.proc_list[encoder[1][1]].toggle()
             return(None, None, self.channels[encoder[0]].get_level(self.active_bus))
         if encoder[0] == "none":
             return(None, None, 0.0)
@@ -236,6 +236,8 @@ class Layer:
     def fader_move(self, value):
         if self.faders[0][0] == "quit":
             return("quit", "none", "none")
+        if self.faders[0][0] == "none":
+            return("none", "none", "none")
         else:
             return(self.channels[self.faders[0][0]].set_level(int(self.faders[0][1]), value))
 
@@ -454,7 +456,7 @@ class MixerState:
             if value > .98:
                 self.shutdown()
                 exit()
-        elif address != None:
+        elif address != 'none':
             self.xair_client.send(address=address, param=param)
 
     def received_osc(self, addr, value):
