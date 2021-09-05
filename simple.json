@@ -1,0 +1,72 @@
+{
+    "A": {
+        "encoders": [
+            ["/ch/01/mix", ["reset", "0.750000"]],
+            ["/ch/02/mix", ["reset", "0.750000"]],
+            ["/ch/03/mix", ["reset", "0.750000"]],
+            ["/ch/04/mix", ["reset", "0.750000"]],
+            ["/ch/05/mix", ["reset", "0.750000"]],
+            ["/ch/06/mix", ["reset", "0.750000"]],
+            ["/ch/07/mix", ["reset", "0.750000"]],
+            ["/ch/08/mix", ["reset", "0.750000"]]
+        ],
+        "buttons": [
+            ["mute", "/ch/01/mix"],
+            ["mute", "/ch/02/mix"],
+            ["mute", "/ch/03/mix"],
+            ["mute", "/ch/04/mix"],
+            ["mute", "/ch/05/mix"],
+            ["mute", "/ch/06/mix"],
+            ["mute", "/ch/07/mix"],
+            ["mute", "/ch/08/mix"],
+            ["mute", "/ch/09/mix"],
+            ["mute", "/ch/10/mix"],
+            ["mute", "/ch/11/mix"],
+            ["mute", "/ch/12/mix"],
+            ["mute", "/ch/13/mix"],
+            ["mute", "/ch/14/mix"],
+            ["mute", "/ch/15/mix"],
+            ["mute", "/ch/16/mix"],
+            ["layer", "A", "0", "On"],
+            ["layer", "B", "0", "Off"]
+        ],
+        "fader": [
+            ["none", "0"]
+        ]
+    },
+    "B": {
+        "encoders": [
+            ["/ch/09/mix", ["reset", "0.750000"]],
+            ["/ch/10/mix", ["reset", "0.750000"]],
+            ["/ch/11/mix", ["reset", "0.750000"]],
+            ["/ch/12/mix", ["reset", "0.750000"]],
+            ["/ch/13/mix", ["reset", "0.750000"]],
+            ["/ch/14/mix", ["reset", "0.750000"]],
+            ["/ch/15/mix", ["reset", "0.750000"]],
+            ["/ch/16/mix", ["reset", "0.750000"]]
+        ],
+        "buttons": [
+            ["mute", "/ch/01/mix"],
+            ["mute", "/ch/02/mix"],
+            ["mute", "/ch/03/mix"],
+            ["mute", "/ch/04/mix"],
+            ["mute", "/ch/05/mix"],
+            ["mute", "/ch/06/mix"],
+            ["mute", "/ch/07/mix"],
+            ["mute", "/ch/08/mix"],
+            ["mute", "/ch/09/mix"],
+            ["mute", "/ch/10/mix"],
+            ["mute", "/ch/11/mix"],
+            ["mute", "/ch/12/mix"],
+            ["mute", "/ch/13/mix"],
+            ["mute", "/ch/14/mix"],
+            ["mute", "/ch/15/mix"],
+            ["mute", "/ch/16/mix"],
+            ["layer", "A", "0", "Off"],
+            ["layer", "B", "0", "On"]
+        ],
+        "fader": [
+            ["none", "0"]
+        ]
+    }
+}

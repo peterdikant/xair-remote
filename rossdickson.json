@@ -1,0 +1,177 @@
+{
+    "A": {
+        "encoders": [
+            ["/ch/01/mix", ["reset", "0.750000"]],
+            ["/ch/02/mix", ["reset", "0.750000"]],
+            ["/ch/03/mix", ["reset", "0.750000"]],
+            ["/ch/04/mix", ["reset", "0.750000"]],
+            ["/ch/05/mix", ["reset", "0.750000"]],
+            ["/ch/06/mix", ["reset", "0.750000"]],
+            ["/ch/07/mix", ["reset", "0.750000"]],
+            ["/ch/08/mix", ["reset", "0.750000"]]
+        ],
+        "buttons": [
+            ["mute", "/ch/01/mix"],
+            ["mute", "/ch/02/mix"],
+            ["mute", "/ch/03/mix"],
+            ["mute", "/ch/04/mix"],
+            ["mute", "/ch/05/mix"],
+            ["mute", "/ch/06/mix"],
+            ["mute", "/ch/07/mix"],
+            ["mute", "/ch/08/mix"],
+            ["send", "1"],
+            ["send", "2"],
+            ["send", "3"],
+            ["send", "4"],
+            ["send", "5"],
+            ["send", "6"],
+            ["send", "7"],
+            ["layer", "Gain", "0", "Off"],
+            ["layer", "Aprime", "7", "On"],
+            ["layer", "B", "0", "Off"]
+        ],
+        "fader": [
+            ["quit", "0"]
+        ]
+    },
+    "Aprime": {
+        "encoders": [
+            ["/ch/09/mix", ["reset", "0.750000"]],
+            ["/ch/10/mix", ["reset", "0.750000"]],
+            ["/ch/11/mix", ["reset", "0.750000"]],
+            ["/ch/12/mix", ["reset", "0.750000"]],
+            ["/ch/13/mix", ["reset", "0.750000"]],
+            ["/ch/14/mix", ["reset", "0.750000"]],
+            ["/ch/15/mix", ["reset", "0.750000"]],
+            ["/ch/16/mix", ["reset", "0.750000"]]
+        ],
+        "buttons": [
+            ["mute", "/ch/09/mix"],
+            ["mute", "/ch/10/mix"],
+            ["mute", "/ch/11/mix"],
+            ["mute", "/ch/12/mix"],
+            ["mute", "/ch/13/mix"],
+            ["mute", "/ch/14/mix"],
+            ["mute", "/ch/15/mix"],
+            ["mute", "/ch/16/mix"],
+            ["send", "1"],
+            ["send", "2"],
+            ["send", "3"],
+            ["send", "4"],
+            ["send", "5"],
+            ["send", "6"],
+            ["send", "7"],
+            ["layer", "Gain", "0", "Off"],
+            ["layer", "A", "7", "Blink"],
+            ["layer", "B", "0", "Off"]
+        ],
+        "fader": [
+            ["quit", "0"]
+        ]
+    },
+    "B": {
+        "encoders": [
+            ["/bus/1/mix", ["reset", "0.375367"]],
+            ["/bus/2/mix", ["reset", "0.375367"]],
+            ["/bus/3/mix", ["reset", "0.375367"]],
+            ["/bus/4/mix", ["reset", "0.375367"]],
+            ["/bus/5/mix", ["reset", "0.375367"]],
+            ["/bus/6/mix", ["reset", "0.375367"]],
+            ["/rtn/aux/mix", ["reset", "0.750000"]],
+            ["/lr/mix", ["reset", "0.375367"]]
+        ],
+        "buttons": [
+            ["mute", "/bus/1/mix"],
+            ["mute", "/bus/2/mix"],
+            ["mute", "/bus/3/mix"],
+            ["mute", "/bus/4/mix"],
+            ["mute", "/bus/5/mix"],
+            ["mute", "/bus/6/mix"],
+            ["mute", "/rtn/aux/mix"],
+            ["mute", "/lr/mix"],
+            ["none", "1"],
+            ["none", "2"],
+            ["none", "3"],
+            ["none", "4"],
+            ["none", "5"],
+            ["none", "6"],
+            ["none", "7"],
+            ["layer", "Gain", "0", "Off"],
+            ["layer", "A", "7", "Off"],
+            ["layer", "B", "0", "On"]
+        ],
+        "fader": [
+            ["quit", "0"]
+        ]
+    },
+    "Gain": {
+        "encoders": [
+            ["/headamp/01", ["none"]],
+            ["/headamp/02", ["none"]],
+            ["/headamp/03", ["none"]],
+            ["/headamp/04", ["none"]],
+            ["/headamp/05", ["none"]],
+            ["/headamp/06", ["none"]],
+            ["/headamp/07", ["none"]],
+            ["/headamp/08", ["none"]]
+        ],
+        "buttons": [
+            ["none", "Off"],
+            ["none", "Off"],
+            ["quit", "State"],
+            ["quit", "State"],
+            ["none", "Off"],
+            ["none", "Off"],
+            ["clip", "State"],
+            ["none", "State"],
+            ["none", "1"],
+            ["none", "2"],
+            ["none", "3"],
+            ["none", "4"],
+            ["none", "5"],
+            ["none", "6"],
+            ["none", "7"],
+            ["layer", "Gainprime", "0", "On"],
+            ["layer", "A", "0", "Off"],
+            ["layer", "B", "0", "Off"]
+        ],
+        "fader": [
+            ["quit", "0"]
+        ]
+    },
+    "Gainprime": {
+        "encoders": [
+            ["/headamp/09", ["none"]],
+            ["/headamp/10", ["none"]],
+            ["/headamp/11", ["none"]],
+            ["/headamp/12", ["none"]],
+            ["/headamp/13", ["none"]],
+            ["/headamp/14", ["none"]],
+            ["/headamp/15", ["none"]],
+            ["/headamp/16", ["none"]]
+        ],
+        "buttons": [
+            ["none", "Off"],
+            ["none", "Off"],
+            ["quit", "State"],
+            ["quit", "State"],
+            ["none", "Off"],
+            ["none", "Off"],
+            ["clip", "State"],
+            ["none", "State"],
+            ["none", "1"],
+            ["none", "2"],
+            ["none", "3"],
+            ["none", "4"],
+            ["none", "5"],
+            ["none", "6"],
+            ["none", "7"],
+            ["layer", "Gain", "0", "Blink"],
+            ["layer", "A", "0", "Off"],
+            ["layer", "B", "0", "Off"]
+        ],
+        "fader": [
+            ["quit", "0"]
+        ]
+    }
+}
