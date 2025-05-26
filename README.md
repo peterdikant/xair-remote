@@ -7,6 +7,8 @@ Use a Behringer X-Touch Mini MIDI controller to remote control a Behringer X-Air
 You need Python 3.5 or later. Please make sure to install required libraries:
 
 	$ sudo pip3 install -r requirements.txt
+  
+On modern debian systems you might have to create a virtual python environment first (or pass --break-system-packages to pip)  
 
 ## Update
 
